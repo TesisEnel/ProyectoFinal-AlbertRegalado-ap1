@@ -1,0 +1,202 @@
+@page "/suplidor"
+@page "/suplidor/{SuplidorId:int}"
+
+@inject AuthenticationStateProvider Authentication
+@inject NotificationService notifierSvc
+@inject SuplidorBLL suplidorBll
+
+<EditForm Model="suplidor" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator/>
+    <div class="card shadow-lg">
+        <div class="card ">
+            <div class="card-header ">
+                <h3 class="card-title">
+                    Registro Suplidores <div class="oi oi-truck" ></div>
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group col-4">
+                        <label>Suplidor Id</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="suplidor.SuplidorId" class="form-control" />                          
+                            <div class="input-group-append col">
+                                <button type="button" class="btn btn-primary input-group-text "
+                                    @onclick="Buscar"><span class="oi oi-magnifying-glass"></span></button>                                                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="card-body">
+                <hr>
+
+                @*...................... Nombre ......................*@
+
+                <div class="row">
+                    <div class="form-group col-3">
+                        <label>Nombre Suplidor</label>
+                        <InputText @bind-Value="suplidor.Nombre" placeholder="Nombre Suplidor" class="form-control"/>
+                        <ValidationMessage For="@(() => suplidor.Nombre)"/>
+                    </div>
+
+                    @*...................... Dirección ......................*@
+                    <div class="form-group col-3">
+                        <label>
+                            Dirección
+                            <div class="oi oi-map-marker"></div>
+                        </label>
+                        <InputText @bind-Value="suplidor.Direccion" placeholder="Dirección" class="form-control"/>
+                        <ValidationMessage For="@(() => suplidor.Direccion)"/>
+                    </div>
+
+                    @*...................... Email ......................*@
+
+                    <div class="form-group col-3">
+                        <label>
+                        Email
+                        </label>
+                        <InputText @bind-Value="suplidor.Email" placeholder="Correro electronico"
+                                   class="form-control"/>
+                        <ValidationMessage For="@(() => suplidor.Email)"/>
+                    </div>
+                    <br>
+                    <p/>
+                        @*...................... Telefono ......................*@
+                        <div class="row">
+                        <div class="form-group col-3">
+                            <label>
+                            Teléfono
+                            </label>
+                            <InputText @bind-Value="suplidor.Telefono" placeholder="Numero teléfonico"
+                            class="form-control"/>
+                            <ValidationMessage For="@(() => suplidor.Telefono)"/>
+                        </div>
+
+                        @*...................... Descripción Equipo ......................*@
+
+                        <div class="form-group col-3">
+                            <label>Descripción Equipo</label>
+                            <InputText @bind-Value="suplidor.DescripcionEquipo" placeholder="Descripción Equipo"
+                            class="form-control"/>
+                            <ValidationMessage For="@(() => suplidor.DescripcionEquipo)"/>
+                        </div>
+
+                        @*...................... Fecha Ingreso ......................*@
+
+                        <div class="form-group col-2">
+                            <label>Fecha Ingreso </label>
+                            <InputDate @bind-Value="suplidor.Fecha" class="form-control"/>
+                        </div>
+                    </div>
+            @*...................... Botones ......................*@
+
+            <div class="card-footer">
+                <div class="form-group text-center" display: inline-block>
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">
+                        <span class="oi oi-file"> Nuevo</span>
+                    </button>
+                    <button type="submit" class="btn btn-lg btn-success">
+                        <span class="oi oi-document"> Guardar</span>
+                    </button>
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">
+                        <span class="oi oi-trash"> Eliminar</span>
+                    </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</EditForm>
+
+@code
+{
+    #nullable disable 
+    Suplidor suplidor = new Suplidor();
+    [Parameter]
+    public int SuplidorId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        suplidor = new Suplidor();
+
+        if (SuplidorId > 0)
+        {
+            suplidor.SuplidorId = SuplidorId;
+            this.Buscar();
+        }
+    }
+
+    public void Nuevo() 
+    {
+        suplidor = new Suplidor();
+        notifierSvc.ShowNotification("Nueva plantilla creada correctamente.", NotificationSeverity.Success);
+
+    }
+
+    public void Guardar() 
+    {
+        var suplidor2 = suplidorBll.ExisteNombreSuplidor(suplidor.Nombre);
+
+        if (suplidor2 == null) 
+        {
+            if (suplidorBll.Guardar(suplidor))
+            {
+                notifierSvc.ShowNotification("Fue guardado correctamente.");
+                suplidor = new Suplidor();
+            }
+            else
+                notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
+        }
+        else 
+        {
+            if (suplidor2.Nombre.ToLower() == suplidor.Nombre.ToLower() && suplidor2.SuplidorId == suplidor.SuplidorId)
+            {
+                if (suplidorBll.Guardar(suplidor))
+                {
+                    notifierSvc.ShowNotification("Fue guardado correctamente.");
+                    suplidor = new Suplidor();
+                }
+                else
+                    notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
+            }
+            else
+            {
+                notifierSvc.ShowNotification("Ya esta registrado.", NotificationSeverity.Warning);
+            }
+        }
+    }
+
+    public void Buscar() 
+    {
+        if (this.suplidor.SuplidorId > 0)
+        {
+            var Suplidor = suplidorBll.Buscar(suplidor.SuplidorId);
+
+            if (Suplidor != null)
+            {
+                suplidor = Suplidor;
+                notifierSvc.ShowNotification("Registro encontrado", NotificationSeverity.Success);
+            }
+            else
+            {
+                notifierSvc.ShowNotification("Registro no encontrado", NotificationSeverity.Warning);
+            }
+        }
+    }
+
+    public void Eliminar() 
+    {
+        bool Eliminar;
+
+        Eliminar = suplidorBll.Eliminar(suplidor.SuplidorId);
+
+        if (Eliminar)
+        {
+            suplidor = new Suplidor();
+            notifierSvc.ShowNotification("Eliminado correctamente", NotificationSeverity.Success);
+        }
+        else
+            notifierSvc.ShowNotification("No pudo ser eliminado", NotificationSeverity.Error);
+
+    }
+}

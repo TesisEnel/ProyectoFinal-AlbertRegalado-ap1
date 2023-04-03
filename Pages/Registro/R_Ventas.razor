@@ -1,0 +1,507 @@
+@page "/ventas"
+
+@page "/ventas/{VentaId:int}"
+
+@inject AuthenticationStateProvider Authentication
+@inject EquipoBLL equipoBll
+@inject PagoBLL pagoBll
+@inject ClienteBLL clienteBll
+@inject VentasBLL ventaBll
+@inject NotificationService notifierSvc
+
+<EditForm Model="venta" OnValidSubmit="Guardar">
+<DataAnnotationsValidator/>
+
+    <div class="container">
+    <div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            Registro Ventas
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-shop" viewBox="0 0 16 16">
+                <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>
+            </svg>
+        </h3>
+    </div>
+
+<div class="card-body">
+    <div class="form-group col-4">
+    <label>VentaId</label>
+    <div class="input-group">
+        <InputNumber @bind-Value="venta.VentaId" class="form-control" />
+        <div class="input-group-append col">
+            <button type="button" class="btn btn-primary input-group-text "
+            @onclick="Buscar"><span class="oi oi-magnifying-glass"></span></button>                                                                 
+        </div>
+    </div>
+</div>
+<br>
+
+@*...................... Fecha ......................*@
+<div class="row">
+
+    <div class="form-group col-md-2">
+        <label>Fecha</label>
+        <InputDate @bind-Value="venta.Fecha" class="form-control col-8"/>
+    </div>
+
+    @*...................... Cliente ......................*@
+
+    <div class="form-group col-md-3">
+        <label>
+        Cliente
+        <div class="oi oi-people"></div>
+        </label>
+        <select @bind="detalle.ClienteId" class="form-select text-14">
+            <option value="0" disabled selected>Seleccione un cliente</option>
+            @foreach (Cliente item in ClienteList)
+            {
+                <option value="@item.ClienteId">@item.Nombre </option>
+            }
+        </select>
+    </div>
+</div>
+<hr>
+
+<div class="row">
+    @*...................... Equipo ......................*@
+    <div class="form-group col-md-1"></div>
+    <div class="form-group col-md-3">
+        <label>
+            Equipo
+            <div class="oi oi-laptop"></div>
+        </label>
+        <select @bind="EquipoSeleccionado" class="form-select text-14"@onfocusout="ObtenerDatosEquipo">
+        <option value="0" disabled selected> Seleccione un Equipo </option>
+        @foreach (Equipo item in EquipoList)
+        {
+            <option value="@item.EquipoId">@item.Nombre</option>
+        }
+        </select>
+    </div>
+
+    <div class="form-group col-md-2">
+        <label>Unidades</label>
+        <InputNumber @bind-Value="venta.Existencia" class="form-control col-5" readOnly="true"/>
+    </div>
+
+    @*...................... Cantidad ......................*@
+
+    <div class="form-group col-md-2">
+        <label>
+        Cantidad
+        <div class="oi oi-layers"></div>
+        </label>
+        <InputNumber @bind-Value="detalle.Cantidad" class="form-control"/>
+        <ValidationMessage For="@(() => detalle.Cantidad)"/>
+    </div>
+
+    @*...................... Boton Add ......................*@
+
+    <div class="form-group col">
+        <br>
+        <button type="button" class="btn btn-primary" @onclick="AgregarDetalle" title="Añadir detalle de venta">
+            <span class="oi oi-plus"> Agregar</span>
+        </button>
+    </div>
+</div>
+<br>
+<table class="table table-light table-striped">
+    <thead class="thead">
+    <tr class="table text-center bg-inventariocolor">
+        <th class="border border-3">Id</th>
+        <th class="border border-3">Descripción</th>
+        <th class="border border-3">Cantidad</th>
+        <th class="border border-3">Precio</th>
+        <th class="border border-3">Importe</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (venta.ventasDetalle is not null)
+    {
+        @foreach (VentasDetalle item in venta.ventasDetalle)
+        {
+            <tr class="text-center">
+                <td>@item.EquipoId</td>
+                <td>@item.Descripcion</td>
+                <td>@item.Cantidad</td>
+                <td>RD$ @item.PrecioEquipo</td>
+                <td>RD$ @item.Importe</td>
+                <td>
+                    <a class="btn btn-sm btn-outline-danger oi oi-ban"
+                       @onclick="(() => RemoverDetalle(item))">
+                    </a>
+                </td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+<hr>
+
+@*...................... Metodo de pago ......................*@
+
+<div class="row">
+
+    <div class="form-group col-3">
+        <label>
+            Método de pago
+            <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cash-coin" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M11 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm5-4a5 5 0 1 1-10 0 5 5 0 0 1 10 0z"/>
+                <path d="M9.438 11.944c.047.596.518 1.06 1.363 1.116v.44h.375v-.443c.875-.061 1.386-.529 1.386-1.207 0-.618-.39-.936-1.09-1.1l-.296-.07v-1.2c.376.043.614.248.671.532h.658c-.047-.575-.54-1.024-1.329-1.073V8.5h-.375v.45c-.747.073-1.255.522-1.255 1.158 0 .562.378.92 1.007 1.066l.248.061v1.272c-.384-.058-.639-.27-.696-.563h-.668zm1.36-1.354c-.369-.085-.569-.26-.569-.522 0-.294.216-.514.572-.578v1.1h-.003zm.432.746c.449.104.655.272.655.569 0 .339-.257.571-.709.614v-1.195l.054.012z"/>
+                <path d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z"/>
+                <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z"/>
+            </svg>
+        </label>
+        <select @bind="PagoSeleccionado" class="form-select text-14" @onfocusout="ObtenerPago">
+            <option value="0" disabled selected>Seleccionar</option>
+            @foreach (var item in MetodoPagoList)
+            {
+                <option value="@item.PagoId">@item.Metodo</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group col-md-3"></div>
+
+    @*...................... Subtotal ......................*@
+
+    <div class="form-group col-md-2">
+        <label>SubTotal</label>
+        <InputNumber @bind-Value="venta.SubTotal" class="form-control col" readOnly="true"/>
+    </div>
+    <br>
+
+    @*...................... ITBIS ......................*@
+
+    <div class="form-group col-md-2">
+        <label>ITBIS</label>
+        <InputNumber @bind-Value="venta.ITBIS" class="form-control col" readOnly="true"/>
+    </div>
+    <br>
+
+    @*...................... Total ......................*@
+
+    <div class="form-group col-md-2">
+        <label>Total</label>
+        <InputNumber @bind-Value="venta.Total" class="form-control col" readOnly="true"/>
+    </div>
+</div>
+
+<hr>
+@*...................... Pago Obtenido ......................*@
+
+<div class="row">
+    <div class="form-group col-2">
+        <label>Pago Obtenido</label>
+        <InputNumber @bind-Value="venta.PagoObtenido" @onfocusout="ObtenerDevuelta"
+                     class="form-control"/>
+        <ValidationMessage For="@(() => venta.PagoObtenido)"/>
+    </div>
+
+    @*...................... Devuelta ......................*@
+
+    <div class="form-group col-md-2">
+        <label>Devuelta</label>
+        <InputNumber @bind-Value="venta.MontoRestante" class="form-control col-5" readOnly="true"/>
+    </div>
+</div>
+<br>
+<p/>
+
+<hr>
+
+@*...................... Botones ......................*@
+
+<div class="card-footer">
+    <div class="form-group text-center" display: inline-block>
+        <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo" title="Nueva venta">
+            <span class="oi oi-file"> Nuevo</span>
+        </button>
+        <button type="submit" class="btn btn-lg btn-success" title="Guardar venta">
+            <span class="oi oi-document"> Guardar</span>
+        </button>
+        <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar" title="Eliminar registro de venta">
+            <span class="oi oi-trash"> Eliminar</span>
+        </button>
+    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</EditForm>
+
+@code {
+
+    #nullable disable 
+
+    [Parameter]
+    public int VentaId { get; set; }
+    public float cantidad { get; set; }
+    Ventas venta = new Ventas();
+    VentasDetalle detalle = new VentasDetalle();
+    Equipo equipo = new Equipo();
+    public int EquipoSeleccionado { get; set; }
+    public int PagoSeleccionado { get; set; }
+    public decimal precioEquipo { get; set; }
+    public decimal importe { get; set; }
+    public string descripcion { get; set; }
+    public decimal existenciaEquipo { get; set; }
+    public decimal ITBIS { get; set; }
+    public decimal SubTotal { get; set; }
+    public decimal Total { get; set; }
+    List<Cliente> ClienteList = new List<Cliente>();
+    List<Equipo> EquipoList = new List<Equipo>();
+    List<Pago> MetodoPagoList = new List<Pago>();
+
+    protected override void OnInitialized()
+    {
+        EquipoList = equipoBll.GetList(p => true);
+        ClienteList = clienteBll.GetList(p => true);
+        MetodoPagoList = pagoBll.GetList(c => true);
+
+        if (VentaId > 0)
+        {
+            venta.VentaId = VentaId;
+            this.Buscar();
+        }
+    }
+
+    public void Nuevo() 
+    {
+        cantidad = 0;
+        precioEquipo = 0;
+        descripcion = string.Empty;
+        EquipoSeleccionado = 0;
+        SubTotal = 0;
+        ITBIS = 0;
+        Total = 0;
+        existenciaEquipo = 0;
+        importe = 0;
+
+        venta = new Ventas();
+        detalle = new VentasDetalle();
+        EquipoList = equipoBll.GetList(p => true);
+        ClienteList = clienteBll.GetList(p => true);
+        MetodoPagoList = pagoBll.GetList(c => true);
+    }
+
+    private void ObtenerDatosEquipo() 
+    {
+        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
+
+        if (aux != null)
+        {
+            precioEquipo = aux.Precio; 
+            descripcion = aux.Nombre; 
+            venta.Existencia = aux.Cantidad;
+            venta.SubTotal = aux.Precio * Convert.ToDecimal(detalle.Cantidad); 
+            ITBIS = venta.SubTotal * 18 / 100; 
+            venta.ITBIS = ITBIS;
+            venta.Existencia = aux.Cantidad - detalle.Cantidad;
+        }
+    }
+
+    private void UnidadesEquipo()
+    {
+        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
+
+        if (aux != null)
+        {
+            venta.UnidadesVendidas = detalle.Cantidad; 
+        }
+    }
+
+    private void ObtenerDevuelta()
+    {
+        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
+
+        if (aux != null)
+        {
+            if (venta.PagoObtenido > venta.Total)
+            {
+                venta.MontoRestante = venta.PagoObtenido - venta.Total;
+            }
+        }
+    }
+
+    private void ObtenerPago() 
+    {
+        switch (PagoSeleccionado)
+        {
+            case 1:
+                venta.PagoObtenido = venta.Total;
+                venta.MontoRestante = venta.PagoObtenido - venta.Total;
+                break;
+
+            case 2:
+                venta.PagoObtenido = 0;
+                break;
+
+            case 3:
+                venta.PagoObtenido = venta.Total;
+                venta.MontoRestante = venta.PagoObtenido - venta.Total;
+                break;
+        }
+    }
+
+
+    public void Guardar() 
+    {
+        if (detalle.ClienteId == 0) 
+        {
+            notifierSvc.ShowNotification("Tiene que seleccionar un cliente.",NotificationSeverity.Warning);
+            return;
+        }
+
+        if (EquipoSeleccionado == 0)
+        {
+            notifierSvc.ShowNotification("Tiene que seleccionar un equipo.",NotificationSeverity.Warning);
+            return;
+        }
+        if (detalle.Cantidad == 0)
+        {
+            notifierSvc.ShowNotification("Agregue la cantidad a vender.",NotificationSeverity.Warning);
+            return;
+        }
+
+        if (PagoSeleccionado == 0) 
+        {
+            notifierSvc.ShowNotification("Seleccione un metodo de pago",NotificationSeverity.Warning);
+            return;
+        }
+
+        if (venta.PagoObtenido == 0)
+        {
+            notifierSvc.ShowNotification("Ingrese el monto de pago obtenido.",NotificationSeverity.Warning);
+            return;
+        }
+
+        if (venta.PagoObtenido < venta.Total) 
+        {
+            notifierSvc.ShowNotification("El pago debe ser mayor o igual al total", NotificationSeverity.Error);
+            return;
+        }
+
+        ObtenerDevuelta();
+        UnidadesEquipo();
+
+        bool guardado = ventaBll.Guardar(venta);
+
+        if (guardado)
+        {
+            this.venta = new Ventas();
+            this.detalle = new VentasDetalle();
+            EquipoSeleccionado = 0;
+            PagoSeleccionado = 0;
+
+            notifierSvc.ShowNotification("Guardado correctamente",NotificationSeverity.Success);
+        }
+        else
+            notifierSvc.ShowNotification("No fue posible guardar ",NotificationSeverity.Error);
+    }
+
+    protected void Buscar() 
+    {
+        if (this.venta.VentaId > 0)
+        {
+            var encontrado = ventaBll.Buscar(this.venta.VentaId);
+
+            if (encontrado != null)
+            {
+                venta = encontrado;
+                notifierSvc.ShowNotification("Registro encontrado",NotificationSeverity.Success);
+            }
+            else
+            {
+                notifierSvc.ShowNotification("No esta registrado",NotificationSeverity.Error);
+            }
+        }
+    }
+
+    public void AgregarDetalle() 
+    {
+        if (detalle.ClienteId == 0) 
+        {
+            notifierSvc.ShowNotification("Tiene que seleccionar un cliente.",NotificationSeverity.Warning);
+            return;
+        }
+
+        if (EquipoSeleccionado == 0) 
+        {
+            notifierSvc.ShowNotification("Tiene que seleccionar un equipo.",NotificationSeverity.Warning);
+            return;
+        }
+
+        if (detalle.Cantidad == 0) 
+        {
+            notifierSvc.ShowNotification("Ingrese la cantidad de unidades a vender.",NotificationSeverity.Warning);
+            return;
+        }
+
+        if (detalle.Cantidad > venta.Existencia)
+        {
+            notifierSvc.ShowNotification("La cantidad a vender no puede ser mayor que la existencia.",NotificationSeverity.Error);
+            return;
+        }
+        else
+        {
+            this.venta.ventasDetalle.Add(new VentasDetalle
+            {
+                EquipoId = EquipoSeleccionado,
+                PagoId = PagoSeleccionado,
+                Descripcion = descripcion, 
+                Cantidad = detalle.Cantidad,
+                PrecioEquipo = precioEquipo,
+                Importe = precioEquipo * Convert.ToDecimal(detalle.Cantidad)
+            });
+        }
+
+        ObtenerDatosEquipo();
+        venta.Total += (venta.SubTotal + ITBIS); 
+    }
+
+    private void RemoverDetalle(VentasDetalle item) 
+    {
+        notifierSvc.ShowNotification("Detalle removido",NotificationSeverity.Success);
+        this.venta.ventasDetalle.Remove(item);
+
+        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
+
+        if (aux != null)
+        {
+            venta.Existencia = aux.Cantidad;
+        }
+    }
+
+
+    public void MostrarImporte() 
+    {
+        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
+
+        if (aux != null)
+        {
+            precioEquipo = aux.Precio; 
+
+            importe = aux.Precio * Convert.ToDecimal(detalle.Cantidad); 
+        }
+    }
+
+    public void Eliminar()
+    {
+        bool Eliminar;
+
+        Eliminar = ventaBll.Eliminar(venta.VentaId);
+
+        if (Eliminar)
+        {
+            venta = new Ventas();
+            detalle = new VentasDetalle();
+
+            notifierSvc.ShowNotification("Eliminado correctamente",NotificationSeverity.Success);
+        }
+        else
+            notifierSvc.ShowNotification("No fue posible eliminar",NotificationSeverity.Error);
+    }
+
+} 

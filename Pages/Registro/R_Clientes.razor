@@ -1,0 +1,223 @@
+@page "/clientes"
+
+@page "/clientes/{ClienteId:int}"
+
+@inject AuthenticationStateProvider Authentication 
+@inject ClienteBLL clienteBll 
+@inject NotificationService notifierSvc
+    
+<EditForm Model="clientes" OnValidSubmit ="Guardar">
+    <DataAnnotationsValidator/>
+     <div class="card shadow-lg">
+        <div class="card ">
+            <div class="card-header ">
+                <h3 class="card-title">Registro Clientes <div class="oi oi-people" ></div></h3>
+            </div>
+
+            <div class="card-body">
+                    <div class="form-group col-4">
+                        <label>Cliente Id</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="clientes.ClienteId" class="form-control" />
+                            
+                            <div class="input-group-append col">
+                                <button type="button" class="btn btn-primary input-group-text "
+                                    @onclick="Buscar"><span class="oi oi-magnifying-glass"></span></button>                                                                 
+                            </div>
+                        </div>
+                    </div>
+                <hr>
+                   
+                     
+                        @*...................... Nombre ......................*@
+
+                     <div class="row">
+
+                        <div class="form-group col-3">
+                            <label>Nombre</label>
+                            <InputText  @bind-Value="clientes.Nombre" placeholder="Nombre cliente" class="form-control"/>
+                             <ValidationMessage For="@(() => clientes.Nombre)" />
+                        </div>
+
+                        @*...................... Email ......................*@                       
+
+                        <div class="form-group col-3">
+                        <label>Email</label>
+                        <InputText @bind-Value="clientes.Email" placeholder="Correro electronico" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.Email)" />
+                    </div>
+
+                         @*...................... Fecha de nacimiento ......................*@
+
+                    <div class="form-group col-2">
+                            <label>Fecha Nacimiento </label>
+                            <InputDate @bind-Value="clientes.FechaNacimiento" class="form-control" />
+                        </div>
+                    </div>
+                <br>
+
+                         @*...................... Cedula ......................*@
+                    
+                     <div class="row">
+
+                        <div class="form-group col-3">
+                            <label>Cédula</label>
+                            <InputText @bind-Value="clientes.Cedula" placeholder="Numero de cédula" class="form-control" />
+                            <ValidationMessage For="@(() => clientes.Cedula)" />
+                        </div>
+
+                           @*...................... Direccion ......................*@
+
+                    <div class="form-group col-3">
+                        <label>Dirección <div class="oi oi-map-marker" ></div></label>
+                        <InputText @bind-Value="clientes.Direccion" placeholder="Dirección ciudad" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.Direccion)" />                   
+                   </div>
+
+                   
+                
+
+                    
+              </div>
+            <br>                                            
+                        
+                        @*...................... Telefono ......................*@
+                        
+                    <div class="row">
+
+                        <div class="form-group col-3">
+                            <label>Teléfono</label>
+                            <InputText @bind-Value="clientes.Telefono" placeholder="Numero teléfonico" class="form-control" />
+                            <ValidationMessage For="@(() => clientes.Telefono)" />
+                        </div>
+                      
+                        @*...................... Celular ......................*@
+                       
+                         <div class="form-group col-3">
+                            <label>Celular <div class="oi oi-phone" ></div></label>
+                            <InputText @bind-Value="clientes.Celular" placeholder="Celular" class="form-control" />
+                            <ValidationMessage For="@(() => clientes.Celular)" />
+                        </div>
+                    </div>
+                </div>
+             <br>           
+                               
+            <div class="card-footer">
+
+                 <div class="form-group text-center" display: inline-block>
+                    
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">
+                    <span class="oi oi-file"> Nuevo</span>
+                    </button>
+                    
+                    <button type="submit" class="btn btn-lg btn-success">
+                    <span class="oi oi-person"> Guardar</span>
+                    </button>
+                    
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">
+                    <span class="oi oi-trash"> Eliminar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+                       
+    
+</EditForm>
+
+@code
+{
+    #nullable disable
+    Cliente clientes = new Cliente();
+
+    [Parameter]
+    public int ClienteId { get; set; }
+
+    protected override void OnInitialized()
+    {          
+       
+       clientes = new Cliente();
+       clientes.ClienteId = ClienteId;
+       Buscar();         
+    }
+
+    public void Nuevo()  
+    {
+        clientes = new Cliente();
+        notifierSvc.ShowNotification("Nueva plantilla creada correctamente.", NotificationSeverity.Success);
+             
+    }
+
+    public void Guardar()  
+    {
+        var cliente2 = clienteBll.ExisteCedula(clientes.Cedula);
+        
+        if(cliente2 == null) 
+        {
+
+            if (clienteBll.Guardar(clientes))
+            {
+                
+                notifierSvc.ShowNotification("Fue guardado correctamente.");
+                clientes = new Cliente();
+            }
+            else
+                notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
+    
+        }
+        else 
+        {
+            if(cliente2.Cedula.ToLower() == clientes.Cedula.ToLower() && cliente2.ClienteId == clientes.ClienteId) 
+            {
+                if (clienteBll.Guardar(clientes))
+                {
+                    
+                    notifierSvc.ShowNotification("Fue guardado correctamente.");
+                    clientes = new Cliente();
+                }
+
+                else
+                    notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
+            }
+            else
+            {
+                notifierSvc.ShowNotification("Esta cedula ya es existente.", NotificationSeverity.Warning);
+            }
+
+        }
+    }
+
+    public void Buscar() // Buscar cliente
+    {
+        if (this.clientes.ClienteId > 0)
+        { 
+            var Cliente = clienteBll.Buscar(clientes.ClienteId);
+
+            if (Cliente != null)
+            {
+                clientes = Cliente;
+                notifierSvc.ShowNotification("Registro encontrado", NotificationSeverity.Success);
+            }
+            else
+            {
+                notifierSvc.ShowNotification("Registro no encontrado", NotificationSeverity.Warning);
+            }
+        }
+    }
+
+    public async Task Eliminar() // Eliminar cliente
+    {
+        bool Eliminar;
+
+        Eliminar = await clienteBll.Eliminar(clientes.ClienteId);
+
+        if (Eliminar)
+        {
+            clientes = new Cliente();
+            notifierSvc.ShowNotification("Eliminado correctamente", NotificationSeverity.Success);
+        }
+        else
+            notifierSvc.ShowNotification("No pudo ser eliminado", NotificationSeverity.Error);
+
+    }
+}

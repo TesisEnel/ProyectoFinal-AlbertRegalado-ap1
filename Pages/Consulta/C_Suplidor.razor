@@ -1,0 +1,137 @@
+@page "/C_suplidor"
+
+@inject SuplidorBLL suplidorBll
+
+
+<EditForm Model="lista">
+    <div class="card ">
+    
+        <div class="card-header">
+            <h4>Consulta Suplidores
+                  <div class="oi oi-laptop"></div>
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                  <div class="form-group col-md-3">
+                  <InputSelect class="form-select text-14" @bind-Value="Filtro">                
+                        <option value="0" disabled selected>Seleccione un filtro</option>                   
+                        <option value="0">Id</option>
+                        <option value="1">Nombre</option>
+                             
+                    </InputSelect>
+                    </div>
+               <div class="Form-group col-md-1"></div>
+    
+                   <div class="Form-group col-3" >
+                        <label>Criterio</label>
+                        <InputText class="form-control" @bind-Value="Criterio" placeholder="Ingrese el criterio de busqueda"  />
+                    </div>
+
+                    <button type="button" class="btn btn-primary" @onclick="Consultar">
+                        <i class="oi oi-grid-four-up mr-2" /> Consultar
+                    </button>          
+                </div>
+            <hr>
+
+                <div class="row">
+
+                     <div class="Form-group col-2" >
+                        <span class="form-group ">Desde</span>
+                        <InputDate @bind-Value="fechaDesde" class="form-control" />
+                    </div>
+
+                
+                    <div class="Form-group col-2" >
+                        <span class="form-group">Hasta</span>
+                        <InputDate @bind-Value="fechaHasta" class="form-control"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    
+    
+         <table class="table table-light table-striped table-bordered">
+            <thead class="thead">
+                <tr class="table">
+
+                    <th>Id</th>
+                    <th>Nombre</th>     
+                    <th>Dirección</th>  
+                    <th>Email</th>  
+                    <th>Teléfono</th>   
+                    <th>Descripción del Equipo</th>          
+                    <th>Fecha Registro</th>                   
+                    <th>Ver</th>
+                    
+                </tr>
+            </thead>
+          <tbody>
+            @if (lista.Count == 0)
+            {
+                <span>Vacío</span>
+            }
+            else
+                @foreach (var item in lista)
+                {
+                    
+                    <tr>
+                        <td>@item.SuplidorId</td>
+                        <td>@item.Nombre</td>
+                        <td>@item.Direccion</td>
+                        <td>@item.Email</td>
+                        <td>@item.Telefono</td>
+                        <td>@item.DescripcionEquipo</td>
+                        <td>@item.Fecha</td>                                          
+                        <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="suplidor/@item.SuplidorId"></a>
+                        </td>
+                    </tr>             
+                }  
+            </tbody>         
+        </table>
+    </div> 
+</EditForm>
+
+@code{
+    
+    #nullable disable 
+    public string Filtro;
+    public string Criterio;
+    private DateOnly fechaDesde { get; set; } = new DateOnly(2010, 4, 10);
+    private DateOnly fechaHasta { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    public DateOnly Fecha { get; set; } 
+    public List<Suplidor> lista { get; set; } = new List<Suplidor>();
+    public Suplidor suplidor { get; set; } = new Suplidor(); 
+
+ protected override void OnInitialized()
+    {
+        Filtro = "0";
+        lista = suplidorBll.GetList(e => true);
+    }
+    private void Consultar()
+    {
+        lista = new List<Suplidor>();
+        suplidor = new Suplidor();
+
+        if (Criterio != null)
+        {
+            switch (Filtro)
+            {
+                case "0": 
+                    lista = suplidorBll.GetList(e => e.SuplidorId == int.Parse(Criterio)) ;  
+                    break;
+                case "1":
+                    lista = suplidorBll.GetList(p => p.Nombre.ToLower().Contains(Criterio.ToLower())) ;
+                    break;
+            }
+        }
+        else
+        {
+            
+            lista = suplidorBll.GetList(e => e.Fecha >= fechaDesde && e.Fecha <= fechaHasta);
+        }
+    }
+}

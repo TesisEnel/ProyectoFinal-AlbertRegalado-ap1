@@ -1,0 +1,215 @@
+@page "/equipo"
+@page "/equipo/{EquipoId:int}"
+ 
+@inject NotificationService notifierSvc
+@inject EquipoBLL equipoBll
+@inject AuthenticationStateProvider Authentication
+
+<EditForm Model="equipos" OnValidSubmit ="Guardar">
+    <DataAnnotationsValidator/>
+     <div class="card shadow-lg">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Registro Equipos <div class="oi oi-laptop"></div></h3>
+            </div>
+            <div class="card-body">
+
+                    <div class="form-group col-4">
+                        <label>Equipo Id</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="equipos.EquipoId" class="form-control" />
+                            
+                            <div class="input-group-append col">
+                                <button type="button" class="btn btn-primary input-group-text "
+                                    @onclick="Buscar"><span class="oi oi-magnifying-glass"></span></button>                                                                 
+                            </div>
+                        </div>
+                    </div>
+                <hr>
+                         @*...................... Fecha ......................*@
+
+                    <div class="row">
+                    
+                   <div class="form-group col-3">
+                            <label>Fecha</label>
+                            <InputDate @bind-Value="equipos.FechaCreacion" class="form-control" />
+                        </div>
+                    </div>                   
+                <br> 
+                
+                         @*...................... Nombre ......................*@
+                
+                    <div class="row">
+
+                    <div class="form-group col-3">
+                    <label>Nombre</label>
+                    <InputText @bind-Value="equipos.Nombre" placeholder="Nombre de equipo" class="form-control" />
+                    <ValidationMessage For="@(() => equipos.Nombre)" />
+                </div>
+
+                <br>
+                      
+                          @*...................... Cantidad ......................*@
+
+                <div class="form-group col-md-3">
+                        <label>Cantidad</label>
+                        <InputNumber @bind-Value="equipos.Cantidad"  class="form-control" />
+                        <ValidationMessage For="@(() => equipos.Cantidad)" />                   
+                    </div>                  
+              </div>
+          <br>            
+                          @*...................... Costo / Unidad ......................*@
+
+                    <div class="row">
+
+                    <div class="form-group col-3">
+                        <label>Costo / Unidad</label>
+                        <InputNumber @bind-Value="equipos.Costo"  class="form-control" />
+                        <ValidationMessage For="@(() => equipos.Costo)" />
+                    </div>
+                    
+                          @*...................... Precio ......................*@
+
+                    <div class="form-group col-3">
+                        <label>Precio</label>
+                        <InputNumber @bind-Value="equipos.Precio"  class="form-control" />
+                        <ValidationMessage For="@(() => equipos.Precio)" />
+                    </div>
+
+                          @*...................... ITBIS ......................*@
+
+                    <div class="form-group col-md-3">
+                        <label>ITBIS</label>
+                        <InputSelect @bind-Value="equipos.ITBIS" class="form-select text-14">
+                        <option value="0" disabled selected>Seleccione un %</option>
+                            <option value="0">0%</option>
+                            <option value="18">18%</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => equipos.ITBIS)" />
+                    </div>
+                </div>                                                
+            </div>    
+        <br>
+                                   
+            <div class="card-footer">
+                 <div class="form-group text-center" display: inline-block>
+                    
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">
+                    <span class="oi oi-file"> Nuevo</span>
+                    </button>
+                    <button type="submit" class="btn btn-lg btn-success" >
+                    <span class="oi oi-laptop"> Guardar</span>
+                    </button>                    
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">
+                    <span class="oi oi-trash"> Eliminar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+         
+
+</EditForm>
+
+@code {
+
+
+    #nullable disable 
+    Equipo equipos = new Equipo();
+
+    [Parameter]  
+    public int EquipoId { get; set; } 
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+       equipos = new Equipo();
+       equipos.EquipoId = EquipoId; 
+       await Task.Run(() => Buscar());
+       
+    }
+
+    public void Nuevo()
+    {
+        equipos = new Equipo();
+        notifierSvc.ShowNotification("Nueva plantilla creada correctamente.", NotificationSeverity.Success);
+
+    }
+
+    public void Guardar() 
+    {
+        if (equipos.Precio < equipos.Costo)
+        { 
+            return;
+        }
+
+        var _equipo = equipoBll.ExisteNombre(equipos.Nombre);
+
+        if(_equipo == null) 
+        {
+        if (equipoBll.Guardar(equipos))
+        {
+            
+            notifierSvc.ShowNotification("Fue guardado correctamente.");
+            equipos = new Equipo();           
+        }
+        else
+            notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
+
+     }
+     else 
+        {
+            if(_equipo.Nombre.ToLower() == equipos.Nombre.ToLower() && _equipo.EquipoId == equipos.EquipoId) 
+            {
+                if (equipoBll.Guardar(equipos))
+                {
+
+                    
+                    notifierSvc.ShowNotification("Fue guardado correctamente.");
+                    equipos = new Equipo();
+                }
+                else
+                    notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
+            }
+            else
+            {
+                 notifierSvc.ShowNotification("Ya esta registrado.", NotificationSeverity.Warning);
+            }
+        }
+    }
+
+    public void Buscar() 
+    {
+
+        if (this.equipos.EquipoId > 0)
+        { 
+        var _equipo = equipoBll.Buscar(equipos.EquipoId);
+
+            if (_equipo != null)
+            {
+                equipos = _equipo;
+                notifierSvc.ShowNotification("Registro encontrado", NotificationSeverity.Success);
+            }
+            else
+            {
+                notifierSvc.ShowNotification("Registro no encontrado", NotificationSeverity.Warning);
+            }
+        }
+    }
+
+    public async Task Eliminar() 
+    {
+        bool Eliminar;
+
+        Eliminar = await equipoBll.Eliminar(equipos.EquipoId);
+
+        if (Eliminar)
+        {
+            equipos = new Equipo();
+            notifierSvc.ShowNotification("Eliminado correctamente", NotificationSeverity.Success);
+        }
+        else
+            notifierSvc.ShowNotification("No pudo ser eliminado", NotificationSeverity.Error);
+
+    }
+}

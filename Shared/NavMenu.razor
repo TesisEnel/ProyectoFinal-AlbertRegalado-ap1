@@ -1,0 +1,41 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Ventas de equipos</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column ">
+
+        <RadzenPanelMenu class="info">
+            <RadzenPanelMenuItem Text="Registros" Icon="addchart">
+                <RadzenPanelMenuItem Text="Cliente" Path="clientes" Icon="person" />
+                <RadzenPanelMenuItem Text="Equipo" Path="equipo" Icon="devices" />
+                <RadzenPanelMenuItem Text="Venta" Path="ventas" Icon="sell" />
+                <RadzenPanelMenuItem Text="Suplidor" Path="suplidor" Icon="inventory_2"/>
+            </RadzenPanelMenuItem>
+            
+            <RadzenPanelMenuItem Text="Consultas" Icon="list">
+                <RadzenPanelMenuItem Text="Clientes" Path="C_cliente" Icon="person" />
+                <RadzenPanelMenuItem Text="Equipos" Path="C_equipo" Icon="devices" />
+                <RadzenPanelMenuItem Text="Ventas" Path="C_venta" Icon="sell" />
+                <RadzenPanelMenuItem Text="Suplidores" Path="C_suplidor" Icon="inventory_2" />
+            </RadzenPanelMenuItem>            
+        </RadzenPanelMenu>
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

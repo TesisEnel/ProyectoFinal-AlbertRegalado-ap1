@@ -1,0 +1,145 @@
+@page "/C_venta"
+
+@inject VentasBLL ventaBll
+
+<EditForm Model="venta" OnValidSubmit="Consultar">
+    <DataAnnotationsValidator/>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16">
+                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                </svg> Consulta Ventas
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="form-group col-md-3">
+                        <InputSelect class="form-select text-14" @bind-Value="Filtro">
+                            <option value="0" disabled selected>Seleccione un filtro</option>
+                            <option value="1">Unidades</option>
+                            <option value="2">SubTotal</option>
+                            <option value="3">ITBIS</option>
+                            <option value="4">Total</option>
+                        </InputSelect>
+                    </div>
+                    <div class="Form-group col-md-1"></div>
+
+                    <div class="Form-group col-3">
+                        <label>Criterio</label>
+                        <InputText class="form-control" @bind-Value="Criterio"
+                                   placeholder="Ingrese el criterio de busqueda"/>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" @onclick="Consultar" title="Consultar ventas">
+                        <i class="oi oi-grid-four-up mr-2"/> Consultar
+                    </button>
+                </div>
+                <hr>
+
+                <div class="row">
+
+                    <div class="Form-group col-2">
+                        <span class="form-group ">Desde</span>
+                        <InputDate @bind-Value="fechaDesde" class="form-control"/>
+                    </div>
+
+                    <div class="Form-group col-2">
+                        <span class="form-group">Hasta</span>
+                        <InputDate @bind-Value="fechaHasta" class="form-control"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table class="table table-light table-striped table-bordered">
+            <thead class="thead">
+            <tr class="table">
+                <th>Código</th>
+                <th>Fecha Venta</th>
+                <th>Equipos vendidos</th>
+                <th>SubTotal</th>
+                <th>ITBIS</th>
+                <th>Total</th>
+                <th>Ver</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (lista.Count == 0)
+            {
+                <span>Vacío</span>
+            }
+            else
+            {
+                @foreach (var item in lista)
+                {
+                    <tr>
+                        <td>@item.VentaId</td>
+                        <td>@item.Fecha</td>
+                        <td>@item.UnidadesVendidas</td>
+                        <td>RD$ @item.SubTotal</td>
+                        <td>@item.ITBIS</td>
+                        <td>RD$ @item.Total</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary oi oi-eye" href="ventas/@item.VentaId"></a>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@code {
+
+    #nullable disable 
+    public string Filtro;
+    public string Criterio;
+    private DateOnly fechaDesde { get; set; } = new DateOnly(2022, 4, 10);
+    private DateOnly fechaHasta { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    public Ventas venta { get; set; } = new Ventas();
+    public List<Ventas> lista { get; set; } = new List<Ventas>();
+
+    protected override void OnInitialized()
+    {
+        Filtro = "0";
+        lista = ventaBll.GetList(e => true);
+    }
+
+    private void Consultar()
+    {
+        lista = new List<Ventas>();
+        venta = new Ventas();
+
+        lista = ventaBll.GetList(e => true);
+
+        if (Criterio != null)
+        {
+            switch (Filtro)
+            {
+                case "1": 
+                    lista = ventaBll.GetList(e => e.UnidadesVendidas == int.Parse(Criterio));
+                    break;
+                case "2": 
+                    lista = ventaBll.GetList(e => e.SubTotal == int.Parse(Criterio));
+                    break;
+                case "3":
+                    lista = ventaBll.GetList(e => e.ITBIS == int.Parse(Criterio));
+                    break;
+                case "4": 
+                    lista = ventaBll.GetList(e => e.Total == int.Parse(Criterio));
+                    break;
+            }
+        }
+        else
+        {
+            lista = ventaBll.GetList(e => e.Fecha >= fechaDesde && e.Fecha <= fechaHasta);
+        }
+    }
+}
