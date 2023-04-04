@@ -39,7 +39,7 @@ public class ClienteBLL{
             .SingleOrDefault();
 
         }
-        catch
+        catch (Exception)
         {
             throw;
         }
@@ -114,6 +114,7 @@ public class ClienteBLL{
                 _contexto.Clientes.Remove(cliente);
                 Eliminado = (await _contexto.SaveChangesAsync() > 0);
             }
+            
         }
         catch (Exception)
         {

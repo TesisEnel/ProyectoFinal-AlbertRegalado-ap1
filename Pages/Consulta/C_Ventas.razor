@@ -4,7 +4,6 @@
 
 <EditForm Model="venta" OnValidSubmit="Consultar">
     <DataAnnotationsValidator/>
-
     <div class="card">
         <div class="card-header">
             <h4>
@@ -18,7 +17,6 @@
         <div class="card-body">
             <form>
                 <div class="input-group d-flex align-items-end">
-
                     <div class="form-group col-md-3">
                         <InputSelect class="form-select text-14" @bind-Value="Filtro">
                             <option value="0" disabled selected>Seleccione un filtro</option>
@@ -60,6 +58,7 @@
         <table class="table table-light table-striped table-bordered">
             <thead class="thead">
             <tr class="table">
+
                 <th>Código</th>
                 <th>Fecha Venta</th>
                 <th>Equipos vendidos</th>
@@ -67,6 +66,7 @@
                 <th>ITBIS</th>
                 <th>Total</th>
                 <th>Ver</th>
+                
             </tr>
             </thead>
             <tbody>

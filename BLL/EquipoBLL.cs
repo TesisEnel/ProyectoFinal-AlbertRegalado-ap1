@@ -25,7 +25,7 @@ public class EquipoBLL{
         return existe;
     }
 
-        public Equipo ExisteNombre(string Nombre)
+    public Equipo ExisteNombre(string Nombre)
     {
         Equipo existe;
         
@@ -45,8 +45,6 @@ public class EquipoBLL{
         return existe;
     }
 
-    
-
     public bool Guardar(Equipo equipo)
     {
             
@@ -55,8 +53,6 @@ public class EquipoBLL{
         else
             return  Modificar(equipo);
     }
-
-    
 
     private bool Insertar(Equipo equipo)
     {
@@ -108,8 +104,6 @@ public class EquipoBLL{
         }
         return equipo;
     }
-
-
 
     public async Task<bool> Eliminar(int id)
     {

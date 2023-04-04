@@ -37,7 +37,8 @@ public class SuplidorBLL{
             .AsNoTracking()
             .SingleOrDefault();
 
-        }catch
+        }
+        catch (Exception)
         {
             throw;
         }
@@ -104,6 +105,7 @@ public class SuplidorBLL{
                 suplidor.Estado = false;
                 eliminado = _contexto.SaveChanges() > 0;
             }
+            
         }
         catch (Exception)
         {

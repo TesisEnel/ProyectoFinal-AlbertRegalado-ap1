@@ -4,23 +4,19 @@
 
 <EditForm Model="lista">
     <div class="card ">    
-    
         <div class="card-header">
             <h4>Consulta Clientes
                   <div class="oi oi-people"></div>
             </h4>
         </div>
-  
        <div class="card-body">
             <form>
                 <div class="input-group d-flex align-items-end">
-
                   <div class="form-group col-md-3">
                   <InputSelect class="form-select text-14" @bind-Value="Filtro">                
                         <option value="0" disabled selected>Seleccione un filtro</option>                   
                         <option value="0">Id</option>
-                        <option value="1">Nombre</option>
-                             
+                        <option value="1">Nombre</option>                          
                     </InputSelect>
                     </div>
                <div class="Form-group col-md-1"></div>
@@ -64,7 +60,8 @@
                     <th>Dirección <div class="oi oi-map-marker" ></div></th>   
                     <th>Cédula <div class="oi oi-credit-card" ></div></th>        
                     <th>Fecha Nacimiento</th>                 
-                    <th>Ver</th>                 
+                    <th>Ver</th>   
+
                 </tr>
             </thead>
           <tbody>
@@ -105,7 +102,7 @@
     public Cliente cliente { get; set; } = new Cliente();    
 
 
-  protected override void OnInitialized()
+    protected override void OnInitialized()
     {
         Filtro = "0";
         lista = clienteBll.GetList(e => true);

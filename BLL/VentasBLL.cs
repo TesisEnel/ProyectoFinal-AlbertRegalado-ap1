@@ -52,6 +52,7 @@ public class VentasBLL{
                 paso =  _contexto.SaveChanges() > 0;
                 _contexto.Entry(ventas).State = EntityState.Detached;
             }
+            
         }
         catch (Exception)
         {

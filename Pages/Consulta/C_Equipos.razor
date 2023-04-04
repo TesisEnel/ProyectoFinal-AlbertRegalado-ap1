@@ -5,13 +5,11 @@
 
 <EditForm Model="lista">
     <div class="card ">
-    
         <div class="card-header">
             <h4>Consulta Equipo
                   <div class="oi oi-laptop"></div>
             </h4>
         </div>
-
         <div class="card-body">
             <form>
                 <div class="input-group d-flex align-items-end">
@@ -20,8 +18,7 @@
                   <InputSelect class="form-select text-14" @bind-Value="Filtro">                
                         <option value="0" disabled selected>Seleccione un filtro</option>                   
                         <option value="0">Id</option>
-                        <option value="1">Nombre</option>
-                             
+                        <option value="1">Nombre</option>                          
                     </InputSelect>
                     </div>
                <div class="Form-group col-md-1"></div>
@@ -30,13 +27,11 @@
                         <label>Criterio</label>
                         <InputText class="form-control" @bind-Value="Criterio" placeholder="Ingrese el criterio de busqueda"  />
                     </div>
-
                     <button type="button" class="btn btn-primary" @onclick="Consultar">
                         <i class="oi oi-grid-four-up mr-2" /> Consultar
                     </button>          
                 </div>
             <hr>
-
                 <div class="row">
 
                      <div class="Form-group col-2" >
@@ -106,7 +101,7 @@
     public Equipo equipos { get; set; } = new Equipo(); 
 
 
- protected override void OnInitialized()
+    protected override void OnInitialized()
     {
         Filtro = "0";
         lista = equipoBll.GetList(e => true);

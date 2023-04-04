@@ -4,8 +4,7 @@
 
 
 <EditForm Model="lista">
-    <div class="card ">
-    
+    <div class="card ">   
         <div class="card-header">
             <h4>Consulta Suplidores
                   <div class="oi oi-laptop"></div>
@@ -15,7 +14,6 @@
         <div class="card-body">
             <form>
                 <div class="input-group d-flex align-items-end">
-
                   <div class="form-group col-md-3">
                   <InputSelect class="form-select text-14" @bind-Value="Filtro">                
                         <option value="0" disabled selected>Seleccione un filtro</option>                   
@@ -106,7 +104,7 @@
     public List<Suplidor> lista { get; set; } = new List<Suplidor>();
     public Suplidor suplidor { get; set; } = new Suplidor(); 
 
- protected override void OnInitialized()
+    protected override void OnInitialized()
     {
         Filtro = "0";
         lista = suplidorBll.GetList(e => true);

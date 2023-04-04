@@ -72,12 +72,7 @@
                         <label>Dirección <div class="oi oi-map-marker" ></div></label>
                         <InputText @bind-Value="clientes.Direccion" placeholder="Dirección ciudad" class="form-control" />
                         <ValidationMessage For="@(() => clientes.Direccion)" />                   
-                   </div>
-
-                   
-                
-
-                    
+                   </div>                    
               </div>
             <br>                                            
                         
@@ -109,19 +104,16 @@
                     <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">
                     <span class="oi oi-file"> Nuevo</span>
                     </button>
-                    
                     <button type="submit" class="btn btn-lg btn-success">
                     <span class="oi oi-person"> Guardar</span>
                     </button>
-                    
                     <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">
                     <span class="oi oi-trash"> Eliminar</span>
                     </button>
                 </div>
             </div>
         </div>
-    </div>
-                       
+    </div>                   
     
 </EditForm>
 
@@ -187,7 +179,7 @@
         }
     }
 
-    public void Buscar() // Buscar cliente
+    public void Buscar() 
     {
         if (this.clientes.ClienteId > 0)
         { 
@@ -205,7 +197,7 @@
         }
     }
 
-    public async Task Eliminar() // Eliminar cliente
+    public async Task Eliminar() 
     {
         bool Eliminar;
 
