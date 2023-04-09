@@ -80,6 +80,7 @@ public class EquipoBLL{
         {
             _contexto.Entry(equipo).State = EntityState.Modified;
             Insertado = _contexto.SaveChanges() > 0;
+            _contexto.Entry(equipo).State = EntityState.Detached;
 
         }
         catch (Exception)

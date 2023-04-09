@@ -278,7 +278,7 @@
         Total = 0;
         existenciaEquipo = 0;
         importe = 0;
-
+        notifierSvc.ShowNotification("Nueva Plantilla.",NotificationSeverity.Info);
         venta = new Ventas();
         detalle = new VentasDetalle();
         EquipoList = equipoBll.GetList(p => true);
@@ -308,7 +308,7 @@
 
         if (aux != null)
         {
-            venta.UnidadesVendidas = detalle.Cantidad; 
+            venta.UnidadesVendidas = venta.ventasDetalle.Sum(d => d.Cantidad);
         }
     }
 
@@ -383,8 +383,8 @@
             return;
         }
 
-        ObtenerDevuelta();
         UnidadesEquipo();
+        ObtenerDevuelta();
 
         bool guardado = ventaBll.Guardar(venta);
 
@@ -482,30 +482,26 @@
         if (aux != null)
         {
             precioEquipo = aux.Precio; 
-
             importe = aux.Precio * Convert.ToDecimal(detalle.Cantidad); 
         }
     }
 
     public void Eliminar()
     {
-        bool eliminar = ventaBll.Eliminar(venta);;
         
         if(ventaBll.Existe(venta.VentaId))
         {
-            if (eliminar)
+            if (ventaBll.Eliminar(venta))
             {
                 venta = new Ventas();
                 detalle = new VentasDetalle();
                 notifierSvc.ShowNotification("Eliminado correctamente",NotificationSeverity.Success);
                 
             }
-            else
-            { 
-                notifierSvc.ShowNotification("No fue posible eliminar",NotificationSeverity.Error);
-            }
                
         }
+        else
+            notifierSvc.ShowNotification("No fue posible eliminar",NotificationSeverity.Error);
 
     }
 
