@@ -19,7 +19,10 @@ Tecnologías utilizadas
 El sistema de ventas de equipos electrónicos está construido utilizando las siguientes tecnologías:
 
 ASP.NET Core: un framework de desarrollo web de Microsoft para crear aplicaciones web modernas y escalables.
+
 Entity Framework Core: un ORM (Object-Relational Mapping) que permite a los desarrolladores trabajar con bases de datos relacionales utilizando objetos de software.
+
 Bootstrap: un conjunto de herramientas de diseño web para crear interfaces de usuario responsivas y atractivas.
+
 HTML/CSS/JavaScript: lenguajes de programación utilizados para construir la interfaz de usuario y agregar funcionalidades interactivas.
 
