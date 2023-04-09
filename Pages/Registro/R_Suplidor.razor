@@ -5,9 +5,6 @@
 @inject NotificationService notifierSvc
 @inject SuplidorBLL suplidorBll
 
-<AuthorizeView context="Context">
-<Authorized>
-
 <EditForm Model="suplidor" OnValidSubmit="Guardar">
     <DataAnnotationsValidator/>
     <div class="card shadow-lg">
@@ -111,19 +108,6 @@
 </div>
 </EditForm>
 
-</Authorized>
-    <NotAuthorized>
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-md-6 text-center">
-                    <h1>Acceso no autorizado</h1>
-                    <p>Para acceder a esta página, es necesario iniciar sesión con una cuenta autorizada.</p>
-                    <a href="Identity/Account/Login"><button class="btn btn-primary">Iniciar sesión</button></a>
-                </div>
-            </div>
-        </div>
-    </NotAuthorized>
-</AuthorizeView>
 
 @code
 {
