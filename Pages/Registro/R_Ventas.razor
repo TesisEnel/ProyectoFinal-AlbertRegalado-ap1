@@ -489,19 +489,24 @@
 
     public void Eliminar()
     {
-        bool Eliminar;
-
-        Eliminar = ventaBll.Eliminar(venta.VentaId);
-
-        if (Eliminar)
+        bool eliminar = ventaBll.Eliminar(venta);;
+        
+        if(ventaBll.Existe(venta.VentaId))
         {
-            venta = new Ventas();
-            detalle = new VentasDetalle();
-
-            notifierSvc.ShowNotification("Eliminado correctamente",NotificationSeverity.Success);
+            if (eliminar)
+            {
+                venta = new Ventas();
+                detalle = new VentasDetalle();
+                notifierSvc.ShowNotification("Eliminado correctamente",NotificationSeverity.Success);
+                
+            }
+            else
+            { 
+                notifierSvc.ShowNotification("No fue posible eliminar",NotificationSeverity.Error);
+            }
+               
         }
-        else
-            notifierSvc.ShowNotification("No fue posible eliminar",NotificationSeverity.Error);
+
     }
 
 } 

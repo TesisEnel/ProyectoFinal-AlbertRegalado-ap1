@@ -10,7 +10,7 @@ public class VentasBLL{
         _contexto = contexto;
     }
 
-    private bool Existe(int id)
+    public bool Existe(int id)
     {
         bool existe = false;
 
@@ -44,15 +44,20 @@ public class VentasBLL{
         {
             if (_contexto.ventas.Add(ventas) != null)
             {
-                foreach (var item in ventas.ventasDetalle)
+                foreach (var item in ventas.ventasDetalle) 
                 {
-                    item.equipo.Cantidad -= item.Cantidad;
+                  
+                    item.equipo.Cantidad -= item.Cantidad;  
+                    _contexto.Entry(item.equipo).State = EntityState.Modified;
+
                 }
 
+                _contexto.ventas.Add(ventas);
                 paso =  _contexto.SaveChanges() > 0;
                 _contexto.Entry(ventas).State = EntityState.Detached;
+        
             }
-            
+
         }
         catch (Exception)
         {
@@ -71,28 +76,43 @@ public class VentasBLL{
             var lista = _contexto.ventas
             .Where(x => x.VentaId == ventas.VentaId)
             .Include(x => x.ventasDetalle)
-            .ThenInclude(x => x.equipo)
             .AsNoTracking()
             .SingleOrDefault();
 
             if(lista != null)
             {  
-                _contexto.Database.ExecuteSqlRaw($"Delete FROM ventasDetalles Where VentaId = {ventas.VentaId}");
 
-                foreach (var item in ventas.ventasDetalle)
+                foreach (var detalle in lista.ventasDetalle)
                 {
-                    _contexto.Entry(item).State = EntityState.Added;
+                    var equipment = _contexto.Equipos.Find(detalle.Id);
 
-                    if (item.equipo != null)
+                    if(equipment != null)
                     {
-                        item.equipo.Cantidad -= item.Cantidad;
+                        equipment.Cantidad += detalle.Cantidad;
+                        _contexto.Entry(equipment).State = EntityState.Modified;
                     }
                 }
-
-                _contexto.Entry(ventas).State = EntityState.Modified;
-                paso =  _contexto.SaveChanges() > 0;
-                _contexto.Entry(ventas).State = EntityState.Detached;
             }
+
+            _contexto.Database.ExecuteSqlRaw($"Delete FROM ventasDetalles Where VentaId = {ventas.VentaId}");
+
+            foreach (var detalle in ventas.ventasDetalle)
+            {
+                var equipment = _contexto.Equipos.Find(detalle.EquipoId);
+
+                if(equipment!=null)
+                {
+                    equipment.Cantidad -= detalle.Cantidad;
+                    _contexto.Entry(equipment).State = EntityState.Modified;
+                    _contexto.SaveChanges();
+                    _contexto.Entry(equipment).State = EntityState.Detached;
+                } 
+            }
+
+            _contexto.Entry(ventas).State = EntityState.Modified;
+            paso =  _contexto.SaveChanges() > 0;
+            _contexto.Entry(ventas).State = EntityState.Detached;
+        
             
         }
         catch (Exception)
@@ -124,28 +144,28 @@ public class VentasBLL{
         return venta;
     }
 
-    public bool Eliminar(int id)
+    public bool Eliminar(Ventas ventas)
     {
         bool paso = false;
 
         try
         {
                         
-            var venta = _contexto.ventas.Find(id);
+        foreach(var item in ventas.ventasDetalle)
+        {
+            var _item = _contexto.Equipos.Find(item.EquipoId);
 
-            if (venta != null)
-            {      
-
-                foreach (var item in venta.ventasDetalle)
-                {
-                    _contexto.Entry(item).State = EntityState.Modified;
-                    item.equipo.Cantidad += item.Cantidad;
-                }
-
-                _contexto.ventas.Remove(venta);
-                paso = _contexto.SaveChanges() > 0;
-                _contexto.Entry(venta).State = EntityState.Detached;
+            if(_item != null)
+            {
+                _item.Cantidad += item.Cantidad;
+                _contexto.Entry(_item).State = EntityState.Modified;
             }
+        }
+
+        _contexto.Entry(ventas).State = EntityState.Deleted;
+        paso = _contexto.SaveChanges() > 0;
+        _contexto.Entry(ventas).State = EntityState.Detached;
+            
         }
         catch (Exception)
         {
