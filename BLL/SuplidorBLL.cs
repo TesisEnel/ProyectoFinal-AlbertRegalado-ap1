@@ -77,6 +77,7 @@ public class SuplidorBLL{
         {
             _contexto.Entry(suplidor).State = EntityState.Modified;
             Insertado =  _contexto.SaveChanges() > 0;
+            _contexto.Entry(suplidor).State = EntityState.Detached;
         }
         catch (Exception)
         {

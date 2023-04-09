@@ -74,7 +74,7 @@
         <option value="0" disabled selected> Seleccione un Equipo </option>
         @foreach (Equipo item in EquipoList)
         {
-            <option value="@item.EquipoId">@item.Nombre</option>
+            <option value="@item.EquipoId">@item.Nombre </option>
         }
         </select>
     </div>
@@ -194,7 +194,7 @@
     <div class="form-group col-2">
         <label>Pago Obtenido</label>
         <InputNumber @bind-Value="venta.PagoObtenido" @onfocusout="ObtenerDevuelta"
-                     class="form-control"/>
+        class="form-control"/>
         <ValidationMessage For="@(() => venta.PagoObtenido)"/>
     </div>
 
@@ -295,9 +295,6 @@
             precioEquipo = aux.Precio; 
             descripcion = aux.Nombre; 
             venta.Existencia = aux.Cantidad;
-            venta.SubTotal = aux.Precio * Convert.ToDecimal(detalle.Cantidad); 
-            ITBIS = venta.SubTotal * 18 / 100; 
-            venta.ITBIS = ITBIS;
             venta.Existencia = aux.Cantidad - detalle.Cantidad;
         }
     }
@@ -348,40 +345,6 @@
 
     public void Guardar() 
     {
-        if (detalle.ClienteId == 0) 
-        {
-            notifierSvc.ShowNotification("Tiene que seleccionar un cliente.",NotificationSeverity.Warning);
-            return;
-        }
-
-        if (EquipoSeleccionado == 0)
-        {
-            notifierSvc.ShowNotification("Tiene que seleccionar un equipo.",NotificationSeverity.Warning);
-            return;
-        }
-        if (detalle.Cantidad == 0)
-        {
-            notifierSvc.ShowNotification("Agregue la cantidad a vender.",NotificationSeverity.Warning);
-            return;
-        }
-
-        if (PagoSeleccionado == 0) 
-        {
-            notifierSvc.ShowNotification("Seleccione un metodo de pago",NotificationSeverity.Warning);
-            return;
-        }
-
-        if (venta.PagoObtenido == 0)
-        {
-            notifierSvc.ShowNotification("Ingrese el monto de pago obtenido.",NotificationSeverity.Warning);
-            return;
-        }
-
-        if (venta.PagoObtenido < venta.Total) 
-        {
-            notifierSvc.ShowNotification("El pago debe ser mayor o igual al total", NotificationSeverity.Error);
-            return;
-        }
 
         UnidadesEquipo();
         ObtenerDevuelta();
@@ -421,30 +384,14 @@
 
     public void AgregarDetalle() 
     {
-        if (detalle.ClienteId == 0) 
+        if(!Validar())
         {
-            notifierSvc.ShowNotification("Tiene que seleccionar un cliente.",NotificationSeverity.Warning);
             return;
         }
 
-        if (EquipoSeleccionado == 0) 
-        {
-            notifierSvc.ShowNotification("Tiene que seleccionar un equipo.",NotificationSeverity.Warning);
-            return;
-        }
+        var find = venta.ventasDetalle.Find(o => o.EquipoId == EquipoSeleccionado);
 
-        if (detalle.Cantidad == 0) 
-        {
-            notifierSvc.ShowNotification("Ingrese la cantidad de unidades a vender.",NotificationSeverity.Warning);
-            return;
-        }
-
-        if (detalle.Cantidad > venta.Existencia)
-        {
-            notifierSvc.ShowNotification("La cantidad a vender no puede ser mayor que la existencia.",NotificationSeverity.Error);
-            return;
-        }
-        else
+        if(find == null)
         {
             this.venta.ventasDetalle.Add(new VentasDetalle
             {
@@ -454,35 +401,43 @@
                 Cantidad = detalle.Cantidad,
                 PrecioEquipo = precioEquipo,
                 Importe = precioEquipo * Convert.ToDecimal(detalle.Cantidad)
-            });
+            }); 
+            notifierSvc.ShowNotification("Agregado.", NotificationSeverity.Success);
+        }
+        else
+        {
+            detalle.Cantidad += find.Cantidad;
+            this.venta.ventasDetalle.Remove(find);
+            this.venta.ventasDetalle.Add(new VentasDetalle
+            {
+                EquipoId = EquipoSeleccionado,
+                PagoId = PagoSeleccionado,
+                Descripcion = descripcion, 
+                Cantidad = detalle.Cantidad,
+                PrecioEquipo = precioEquipo,
+                Importe = precioEquipo * Convert.ToDecimal(detalle.Cantidad)
+            });  
         }
 
         ObtenerDatosEquipo();
-        venta.Total += (venta.SubTotal + ITBIS); 
+        venta.SubTotal = venta.ventasDetalle.Sum(o => o.Importe);
+        venta.ITBIS = venta.SubTotal * 18 / 100;
+        venta.Total = venta.SubTotal + venta.ITBIS;
     }
 
     private void RemoverDetalle(VentasDetalle item) 
     {
         notifierSvc.ShowNotification("Detalle removido",NotificationSeverity.Success);
         this.venta.ventasDetalle.Remove(item);
+        venta.SubTotal = venta.ventasDetalle.Sum(o => o.Importe);
+        venta.ITBIS = venta.SubTotal * 18 / 100;
+        venta.Total = venta.SubTotal + venta.ITBIS;
 
         Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
 
         if (aux != null)
         {
             venta.Existencia = aux.Cantidad;
-        }
-    }
-
-
-    public void MostrarImporte() 
-    {
-        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
-
-        if (aux != null)
-        {
-            precioEquipo = aux.Precio; 
-            importe = aux.Precio * Convert.ToDecimal(detalle.Cantidad); 
         }
     }
 
@@ -503,6 +458,35 @@
         else
             notifierSvc.ShowNotification("No fue posible eliminar",NotificationSeverity.Error);
 
+    }
+
+    public bool Validar()
+    {
+        bool valido = true;
+
+        if (detalle.ClienteId == 0) 
+        {
+            notifierSvc.ShowNotification("Tiene que seleccionar un cliente.",NotificationSeverity.Warning);
+            return false;
+        }
+
+        if (EquipoSeleccionado == 0) 
+        {
+            notifierSvc.ShowNotification("Tiene que seleccionar un equipo.",NotificationSeverity.Warning);
+            return false;
+        }
+        if (detalle.Cantidad <= 0) 
+        {
+            notifierSvc.ShowNotification("La cantidad tiene que ser mayor que 0.",NotificationSeverity.Warning);
+            return false;
+        }
+        if (detalle.Cantidad > venta.Existencia)
+        {
+            notifierSvc.ShowNotification("La cantidad a vender no puede ser mayor que la existencia.",NotificationSeverity.Error);
+            return false;
+        }
+
+        return valido;
     }
 
 } 

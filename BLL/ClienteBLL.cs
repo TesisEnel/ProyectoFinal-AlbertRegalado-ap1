@@ -78,6 +78,7 @@ public class ClienteBLL{
         {
             _contexto.Entry(clientes).State = EntityState.Modified;
             Insertado =  _contexto.SaveChanges() > 0;
+            _contexto.Entry(clientes).State = EntityState.Detached;
         }
         catch (Exception)
         {
