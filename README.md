@@ -9,7 +9,9 @@ El sistema de ventas de equipos electrónicos ofrece las siguientes característ
 
 Registro de usuarios: los usuarios pueden registrarse en el sistema para crear una cuenta personal y guardar su información de contacto y pago.
 Proceso de pago seguro: el sistema utiliza métodos de pago seguros para procesar los pagos de los clientes y proteger su información personal y financiera.
+
 Consulta de compras: los usuarios pueden acceder a su historial de compras y ver un registro de todas las compras anteriores realizadas en el sistema.
+
 Gestión de equipo: los administradores pueden actualizar los equipos electrónicos  y controlar el inventario de equipos disponibles para la venta.
 
 Tecnologías utilizadas
