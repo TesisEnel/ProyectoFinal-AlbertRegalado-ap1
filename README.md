@@ -1,4 +1,4 @@
-# ProyectoFinal-AP1
+# Sistema de ventas de Equipos
 Proyecto final de Programación Aplicada I
 
 Sistema de Ventas de Equipos 
