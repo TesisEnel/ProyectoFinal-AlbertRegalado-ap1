@@ -501,8 +501,7 @@
         if (VentaId != venta.VentaId)
         {
             notifierSvc.ShowNotification("No se puede modificar el Id." , NotificationSeverity.Warning);
-            return false;
-            
+            return false;  
         }
         if(venta.ventasDetalle.Count < 1)
         {

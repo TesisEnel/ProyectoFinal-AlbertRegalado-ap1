@@ -96,7 +96,10 @@ public class EquipoBLL{
 
         try
         {
-            equipo =  _contexto.Equipos.Find(id);
+            equipo = _contexto.Equipos
+            .Where(p => p.EquipoId == id)
+            .AsNoTracking()
+            .SingleOrDefault();
             
         }
         catch (Exception)

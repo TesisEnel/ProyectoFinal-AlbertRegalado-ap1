@@ -93,7 +93,10 @@ public class ClienteBLL{
 
         try
         {
-            cliente = _contexto.Clientes.Find(id);
+            cliente = _contexto.Clientes
+            .Where(p => p.ClienteId == id)
+            .AsNoTracking()
+            .SingleOrDefault();
         }
         catch (Exception)
         {

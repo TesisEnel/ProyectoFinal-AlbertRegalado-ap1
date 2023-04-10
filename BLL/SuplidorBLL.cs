@@ -90,6 +90,7 @@ public class SuplidorBLL{
     {
         return _contexto.Suplidores
         .Where(s => s.SuplidorId == id && s.Estado == true)
+        .AsNoTracking()
         .SingleOrDefault();
     }
  

@@ -139,11 +139,11 @@
 
     protected override void OnInitialized()
     {       
-
-       clientes = new Cliente();
-       clientes.ClienteId = ClienteId;
-       Buscar();   
-
+        if(ClienteId > 0)
+        {
+            clientes.ClienteId = ClienteId;
+            Buscar();
+        }
     }
 
     public void Nuevo()  
@@ -159,7 +159,7 @@
         if(cliente2 == null) 
         {
 
-            if (clienteBll.Guardar(clientes))
+            if (clienteBll.Guardar(this.clientes))
             {
                 
                 notifierSvc.ShowNotification("Fue guardado correctamente.");
@@ -173,7 +173,7 @@
         {
             if(cliente2.Cedula.ToLower() == clientes.Cedula.ToLower() && cliente2.ClienteId == clientes.ClienteId) 
             {
-                if (clienteBll.Guardar(clientes))
+                if (clienteBll.Guardar(this.clientes))
                 {
                     
                     notifierSvc.ShowNotification("Fue guardado correctamente.");
