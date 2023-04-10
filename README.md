@@ -17,6 +17,9 @@ Gestión de equipo: los administradores pueden actualizar los equipos electróni
 
 Tecnologías utilizadas
 
+![image](https://user-images.githubusercontent.com/112819827/230982368-5d612089-283f-4203-ab81-6dc876b2df4e.png)
+
+
 El sistema de ventas de equipos electrónicos está construido utilizando las siguientes tecnologías:
 
 ASP.NET Core: un framework de desarrollo web de Microsoft para crear aplicaciones web modernas y escalables.
