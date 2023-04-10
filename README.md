@@ -2,6 +2,7 @@
 Proyecto final de Programación Aplicada I
 
 Sistema de Ventas de Equipos 
+
 Este es un sistema de ventas de equipos electrónicos que permite a los usuarios realizar compras en línea de una amplia variedad de equipos electrónicos. El sistema está diseñado para ser fácil de usar y proporcionar una experiencia de compra segura y sin problemas para los clientes.
 
 Características
@@ -15,9 +16,11 @@ Consulta de compras: los usuarios pueden acceder a su historial de compras y ver
 
 Gestión de equipo: los administradores pueden actualizar los equipos electrónicos  y controlar el inventario de equipos disponibles para la venta.
 
-Tecnologías utilizadas
+Base de datos
 
 ![image](https://user-images.githubusercontent.com/112819827/230982368-5d612089-283f-4203-ab81-6dc876b2df4e.png)
+
+Tecnologías utilizadas
 
 
 El sistema de ventas de equipos electrónicos está construido utilizando las siguientes tecnologías:
@@ -35,5 +38,15 @@ Usuario y clave
 Username: Rosalia@gmail.com
 
 Password: Rosalia123@
+
+Link del GitHub gitclone https://github.com/Rhazerpk/ProyectoFinal-AP1.git Albert
+
+AutoEvaluación
+
+![Guia_de_Evaluacion_2023-01_AlbertDelgado - Excel 4_10_2023 6_53_53 PM](https://user-images.githubusercontent.com/112819827/231014518-97233e60-c898-4dae-bb1c-72ba27672b43.png)
+
+
+
+
 
 
