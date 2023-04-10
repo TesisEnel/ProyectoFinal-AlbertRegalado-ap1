@@ -26,3 +26,9 @@ Bootstrap: un conjunto de herramientas de diseño web para crear interfaces de u
 
 HTML/CSS/JavaScript: lenguajes de programación utilizados para construir la interfaz de usuario y agregar funcionalidades interactivas.
 
+Usuario y clave
+
+Username: Rosalia@gmail.com
+Password: Rosalia123@
+
+
