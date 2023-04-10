@@ -2,6 +2,10 @@
 
 @inject EquipoBLL equipoBll
 
+
+<AuthorizeView Context="Context">
+    <Authorized>
+
 <EditForm Model="lista">
     <div class="card ">
         <div class="card-header">
@@ -87,6 +91,16 @@
         </table>
     </div> 
 </EditForm>
+
+ </Authorized>
+    <NotAuthorized>
+        <h1>Sistema de Ventas</h1>
+
+        Debe <a href="Identity/Account/Login">Iniciar sesión</a>, o <a href="Identity/Account/Register">Registrarse</a> para utilizar el sistema de registros.
+
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code{
     

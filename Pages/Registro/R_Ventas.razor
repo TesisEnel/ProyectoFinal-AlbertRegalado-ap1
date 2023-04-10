@@ -8,6 +8,9 @@
 @inject VentasBLL ventaBll
 @inject NotificationService notifierSvc
 
+<AuthorizeView Context="Context">
+    <Authorized>
+
 <EditForm Model="venta" OnValidSubmit="Guardar">
 <DataAnnotationsValidator/>
 
@@ -220,6 +223,16 @@
 </div>
 
 </EditForm>
+
+ </Authorized>
+    <NotAuthorized>
+        <h1>Sistema de Ventas</h1>
+
+        Debe <a href="Identity/Account/Login">Iniciar sesión</a>, o <a href="Identity/Account/Register">Registrarse</a> para utilizar el sistema de registros.
+
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code {
 

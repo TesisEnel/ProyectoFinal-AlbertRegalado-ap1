@@ -71,21 +71,22 @@ public class VentasBLL{
 
         try
         {
+            // Obtener la venta existente con detalles de venta incluidos
             var ventaExistente = _contexto.ventas
             .Include(v => v.ventasDetalle)
             .SingleOrDefault(v => v.VentaId == ventas.VentaId);
 
             if (ventaExistente != null)
             {
-                // Actualizar la cantidad de equipos en stock
-                foreach (var detalle in ventaExistente.ventasDetalle)
+                // Actualizar la cantidad de equipos en existencia
+                foreach (var detalleExistente in ventaExistente.ventasDetalle)
                 {
-                    var equipo = _contexto.Equipos.Find(detalle.EquipoId);
+                    var equipoExistente = _contexto.Equipos.Find(detalleExistente.EquipoId);
 
-                    if (equipo != null)
+                    if (equipoExistente != null)
                     {
-                        equipo.Cantidad += detalle.Cantidad;
-                        _contexto.Entry(equipo).State = EntityState.Modified;
+                        equipoExistente.Cantidad += detalleExistente.Cantidad;
+                        _contexto.Entry(equipoExistente).State = EntityState.Modified;
                     }
                 }
 
@@ -93,17 +94,17 @@ public class VentasBLL{
                 _contexto.ventasDetalles.RemoveRange(ventaExistente.ventasDetalle);
 
                 // Agregar los nuevos detalles a la venta existente
-                foreach (var detalle in ventas.ventasDetalle)
+                foreach (var detalleNuevo in ventas.ventasDetalle)
                 {
-                    var equipo = _contexto.Equipos.Find(detalle.EquipoId);
+                    var equipoNuevo = _contexto.Equipos.Find(detalleNuevo.EquipoId);
 
-                    if (equipo != null)
+                    if (equipoNuevo != null)
                     {
-                        equipo.Cantidad -= detalle.Cantidad;
-                        _contexto.Entry(equipo).State = EntityState.Modified;
+                        equipoNuevo.Cantidad -= detalleNuevo.Cantidad;
+                        _contexto.Entry(equipoNuevo).State = EntityState.Modified;
                     }
 
-                    ventaExistente.ventasDetalle.Add(detalle);
+                    ventaExistente.ventasDetalle.Add(detalleNuevo);
                 }
 
                 // Actualizar la venta existente
@@ -119,6 +120,7 @@ public class VentasBLL{
 
         return paso;
     }
+
 
     public Ventas Buscar(int id)
     {
