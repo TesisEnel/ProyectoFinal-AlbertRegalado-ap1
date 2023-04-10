@@ -8,10 +8,11 @@ public class Ventas{
     public int VentaId { get; set; }   
     [DataType(DataType.Date)]  
     public DateOnly Fecha { get; set; }
+    public int ClienteId { get; set; }
+    public int PagoId { get; set; }
     public decimal Total { get; set; }
     public decimal ITBIS { get; set; }
     public decimal SubTotal { get; set; }
-    public double Existencia { get; set; }
     public double UnidadesVendidas { get; set;}
     [Required(ErrorMessage = "Ingrese el monto a pagar.")]
     public decimal PagoObtenido { get; set;}
@@ -31,8 +32,6 @@ public class Ventas{
         ITBIS = 0;
         SubTotal = 0;
         Total = 0;
-        Existencia = 0;
-
         ventasDetalle = new List<VentasDetalle>();
     }
 

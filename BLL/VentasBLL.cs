@@ -17,7 +17,6 @@ public class VentasBLL{
         try
         { 
             existe = _contexto.ventas
-            .AsNoTracking()
             .Any(p => p.VentaId == id);
         }
         catch (Exception)
@@ -46,13 +45,12 @@ public class VentasBLL{
             {
                 foreach (var item in ventas.ventasDetalle) 
                 {
-                  
+     
                     item.equipo.Cantidad -= item.Cantidad;  
                     _contexto.Entry(item.equipo).State = EntityState.Modified;
 
                 }
 
-                _contexto.ventas.Add(ventas);
                 paso =  _contexto.SaveChanges() > 0;
                 _contexto.Entry(ventas).State = EntityState.Detached;
         
@@ -73,47 +71,46 @@ public class VentasBLL{
 
         try
         {
-            var lista = _contexto.ventas
-            .Where(x => x.VentaId == ventas.VentaId)
-            .Include(x => x.ventasDetalle)
-            .AsNoTracking()
-            .SingleOrDefault();
+            var ventaExistente = _contexto.ventas
+            .Include(v => v.ventasDetalle)
+            .SingleOrDefault(v => v.VentaId == ventas.VentaId);
 
-            if(lista != null)
-            {  
-
-                foreach (var detalle in lista.ventasDetalle)
+            if (ventaExistente != null)
+            {
+                // Actualizar la cantidad de equipos en stock
+                foreach (var detalle in ventaExistente.ventasDetalle)
                 {
-                    var equipment = _contexto.Equipos.Find(detalle.Id);
+                    var equipo = _contexto.Equipos.Find(detalle.EquipoId);
 
-                    if(equipment != null)
+                    if (equipo != null)
                     {
-                        equipment.Cantidad += detalle.Cantidad;
-                        _contexto.Entry(equipment).State = EntityState.Modified;
+                        equipo.Cantidad += detalle.Cantidad;
+                        _contexto.Entry(equipo).State = EntityState.Modified;
                     }
                 }
-            }
 
-            _contexto.Database.ExecuteSqlRaw($"Delete FROM ventasDetalles Where VentaId = {ventas.VentaId}");
+                // Eliminar los detalles de la venta existente
+                _contexto.ventasDetalles.RemoveRange(ventaExistente.ventasDetalle);
 
-            foreach (var detalle in ventas.ventasDetalle)
-            {
-                var equipment = _contexto.Equipos.Find(detalle.EquipoId);
-
-                if(equipment!=null)
+                // Agregar los nuevos detalles a la venta existente
+                foreach (var detalle in ventas.ventasDetalle)
                 {
-                    equipment.Cantidad -= detalle.Cantidad;
-                    _contexto.Entry(equipment).State = EntityState.Modified;
-                    _contexto.SaveChanges();
-                    _contexto.Entry(equipment).State = EntityState.Detached;
-                } 
-            }
+                    var equipo = _contexto.Equipos.Find(detalle.EquipoId);
 
-            _contexto.Entry(ventas).State = EntityState.Modified;
-            paso =  _contexto.SaveChanges() > 0;
-            _contexto.Entry(ventas).State = EntityState.Detached;
-        
-            
+                    if (equipo != null)
+                    {
+                        equipo.Cantidad -= detalle.Cantidad;
+                        _contexto.Entry(equipo).State = EntityState.Modified;
+                    }
+
+                    ventaExistente.ventasDetalle.Add(detalle);
+                }
+
+                // Actualizar la venta existente
+                _contexto.Entry(ventaExistente).State = EntityState.Modified;
+                paso = _contexto.SaveChanges() > 0;
+                _contexto.Entry(ventaExistente).State = EntityState.Detached;
+            }
         }
         catch (Exception)
         {
@@ -125,12 +122,12 @@ public class VentasBLL{
 
     public Ventas Buscar(int id)
     {
-        Ventas venta;
+         
+        Ventas ventas;
 
         try
         {
-            venta = _contexto.ventas
-            .Include( e => e.ventasDetalle)
+            ventas = _contexto.ventas
             .Where(e => e.VentaId == id)
             .Include(e => e.ventasDetalle)
             .AsNoTracking()
@@ -141,7 +138,8 @@ public class VentasBLL{
             throw;
         }
 
-        return venta;
+        return ventas;
+
     }
 
     public bool Eliminar(Ventas ventas)
@@ -149,29 +147,28 @@ public class VentasBLL{
         bool paso = false;
 
         try
-        {
-                        
-        foreach(var item in ventas.ventasDetalle)
-        {
-            var _item = _contexto.Equipos.Find(item.EquipoId);
-
-            if(_item != null)
+        {               
+            foreach(var item in ventas.ventasDetalle)
             {
-                _item.Cantidad += item.Cantidad;
-                _contexto.Entry(_item).State = EntityState.Modified;
-            }
-        }
+                var _item = _contexto.Equipos.Find(item.EquipoId);
 
-        _contexto.Entry(ventas).State = EntityState.Deleted;
-        paso = _contexto.SaveChanges() > 0;
-        _contexto.Entry(ventas).State = EntityState.Detached;
-            
+                if(_item != null)
+                {
+                    _item.Cantidad += item.Cantidad;
+                    _contexto.Entry(_item).State = EntityState.Modified;
+                }
+            }
+
+            _contexto.Entry(ventas).State = EntityState.Deleted;
+            paso = _contexto.SaveChanges() > 0;
+            _contexto.Entry(ventas).State = EntityState.Detached;
+                
         }
         catch (Exception)
         {
             throw;
         }
-        
+            
         return paso;
     }
 

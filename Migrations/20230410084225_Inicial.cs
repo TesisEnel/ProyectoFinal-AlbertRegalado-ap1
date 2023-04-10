@@ -234,15 +234,15 @@ namespace ProyectoFinal.Migrations
                     VentaId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Fecha = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PagoId = table.Column<int>(type: "INTEGER", nullable: false),
                     Total = table.Column<decimal>(type: "TEXT", nullable: false),
                     ITBIS = table.Column<decimal>(type: "TEXT", nullable: false),
                     SubTotal = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Existencia = table.Column<double>(type: "REAL", nullable: false),
                     UnidadesVendidas = table.Column<double>(type: "REAL", nullable: false),
                     PagoObtenido = table.Column<decimal>(type: "TEXT", nullable: false),
                     MontoRestante = table.Column<decimal>(type: "TEXT", nullable: false),
-                    MetodoDePago = table.Column<decimal>(type: "TEXT", nullable: false),
-                    PagoId = table.Column<int>(type: "INTEGER", nullable: true)
+                    MetodoDePago = table.Column<decimal>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -251,7 +251,8 @@ namespace ProyectoFinal.Migrations
                         name: "FK_ventas_Pagos_PagoId",
                         column: x => x.PagoId,
                         principalTable: "Pagos",
-                        principalColumn: "PagoId");
+                        principalColumn: "PagoId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -261,9 +262,7 @@ namespace ProyectoFinal.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     VentaId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     EquipoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    PagoId = table.Column<int>(type: "INTEGER", nullable: false),
                     Cantidad = table.Column<double>(type: "REAL", nullable: false),
                     PrecioEquipo = table.Column<decimal>(type: "TEXT", nullable: false),
                     Descripcion = table.Column<string>(type: "TEXT", nullable: true),

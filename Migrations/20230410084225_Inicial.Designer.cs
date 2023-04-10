@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ProyectoFinal.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230403210405_Inicial")]
+    [Migration("20230410084225_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -353,8 +353,8 @@ namespace ProyectoFinal.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("Existencia")
-                        .HasColumnType("REAL");
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateOnly>("Fecha")
                         .HasColumnType("TEXT");
@@ -368,7 +368,7 @@ namespace ProyectoFinal.Migrations
                     b.Property<decimal>("MontoRestante")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("PagoId")
+                    b.Property<int>("PagoId")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("PagoObtenido")
@@ -399,9 +399,6 @@ namespace ProyectoFinal.Migrations
                     b.Property<double>("Cantidad")
                         .HasColumnType("REAL");
 
-                    b.Property<int>("ClienteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Descripcion")
                         .HasColumnType("TEXT");
 
@@ -410,9 +407,6 @@ namespace ProyectoFinal.Migrations
 
                     b.Property<decimal>("Importe")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("PagoId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("PrecioEquipo")
                         .HasColumnType("TEXT");
@@ -484,7 +478,9 @@ namespace ProyectoFinal.Migrations
                 {
                     b.HasOne("Pago", "Pago")
                         .WithMany()
-                        .HasForeignKey("PagoId");
+                        .HasForeignKey("PagoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Pago");
                 });

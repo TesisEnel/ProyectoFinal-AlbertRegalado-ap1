@@ -126,18 +126,18 @@
     public int ClienteId { get; set; }
 
     protected override void OnInitialized()
-    {          
-       
+    {       
+
        clientes = new Cliente();
        clientes.ClienteId = ClienteId;
-       Buscar();         
+       Buscar();   
+
     }
 
     public void Nuevo()  
     {
         clientes = new Cliente();
-        notifierSvc.ShowNotification("Nueva plantilla creada correctamente.", NotificationSeverity.Success);
-             
+        notifierSvc.ShowNotification("Nueva plantilla creada correctamente.", NotificationSeverity.Success);      
     }
 
     public void Guardar()  

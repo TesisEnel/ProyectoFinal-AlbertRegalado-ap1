@@ -1,5 +1,4 @@
 @page "/ventas"
-
 @page "/ventas/{VentaId:int}"
 
 @inject AuthenticationStateProvider Authentication
@@ -51,37 +50,31 @@
         Cliente
         <div class="oi oi-people"></div>
         </label>
-        <select @bind="detalle.ClienteId" class="form-select text-14">
+        <InputSelect @bind-Value="venta.ClienteId" class="form-select text-14">
             <option value="0" disabled selected>Seleccione un cliente</option>
-            @foreach (Cliente item in ClienteList)
+            @foreach (var item in ClienteList)
             {
-                <option value="@item.ClienteId">@item.Nombre </option>
+                <option value="@item.ClienteId">@item.Nombre</option>
             }
-        </select>
+        </InputSelect>
     </div>
 </div>
 <hr>
 
 <div class="row">
     @*...................... Equipo ......................*@
-    <div class="form-group col-md-1"></div>
     <div class="form-group col-md-3">
         <label>
-            Equipo
-            <div class="oi oi-laptop"></div>
+        Equipo
+        <div class="oi oi-laptop"></div>
         </label>
-        <select @bind="EquipoSeleccionado" class="form-select text-14"@onfocusout="ObtenerDatosEquipo">
-        <option value="0" disabled selected> Seleccione un Equipo </option>
-        @foreach (Equipo item in EquipoList)
+        <InputSelect @bind-Value="detalle.EquipoId" class="form-select text-14"@onfocusout="ObtenerDatosEquipo">
+        <option value="0" selected ="selected" disabled="disabled" hidden="hidden" > Seleccione un Equipo </option>
+        @foreach (var item in EquipoList)
         {
             <option value="@item.EquipoId">@item.Nombre </option>
         }
-        </select>
-    </div>
-
-    <div class="form-group col-md-2">
-        <label>Unidades</label>
-        <InputNumber @bind-Value="venta.Existencia" class="form-control col-5" readOnly="true"/>
+        </InputSelect>
     </div>
 
     @*...................... Cantidad ......................*@
@@ -118,7 +111,7 @@
     <tbody>
     @if (venta.ventasDetalle is not null)
     {
-        @foreach (VentasDetalle item in venta.ventasDetalle)
+        @foreach (var item in venta.ventasDetalle)
         {
             <tr class="text-center">
                 <td>@item.EquipoId</td>
@@ -127,7 +120,7 @@
                 <td>RD$ @item.PrecioEquipo</td>
                 <td>RD$ @item.Importe</td>
                 <td>
-                    <a class="btn btn-sm btn-outline-danger oi oi-ban"
+                    <a class="btn btn-sm btn-outline-danger oi oi-ban" title='Remover Detalle'
                        @onclick="(() => RemoverDetalle(item))">
                     </a>
                 </td>
@@ -141,7 +134,6 @@
 @*...................... Metodo de pago ......................*@
 
 <div class="row">
-
     <div class="form-group col-3">
         <label>
             Método de pago
@@ -152,13 +144,13 @@
                 <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z"/>
             </svg>
         </label>
-        <select @bind="PagoSeleccionado" class="form-select text-14" @onfocusout="ObtenerPago">
+        <InputSelect @bind-Value="venta.PagoId" class="form-select text-14" @onfocusout="ObtenerPago">
             <option value="0" disabled selected>Seleccionar</option>
             @foreach (var item in MetodoPagoList)
             {
                 <option value="@item.PagoId">@item.Metodo</option>
             }
-        </select>
+        </InputSelect>
     </div>
 
     <div class="form-group col-md-3"></div>
@@ -207,9 +199,8 @@
 </div>
 <br>
 <p/>
-
 <hr>
-
+</div>
 @*...................... Botones ......................*@
 
 <div class="card-footer">
@@ -225,7 +216,6 @@
         </button>
     </div>
             </div>
-        </div>
     </div>
 </div>
 
@@ -238,15 +228,12 @@
     [Parameter]
     public int VentaId { get; set; }
     public float cantidad { get; set; }
-    Ventas venta = new Ventas();
-    VentasDetalle detalle = new VentasDetalle();
-    Equipo equipo = new Equipo();
-    public int EquipoSeleccionado { get; set; }
-    public int PagoSeleccionado { get; set; }
+    public Ventas venta = new Ventas();
+    public VentasDetalle detalle = new VentasDetalle();
+    public Equipo equipo = new Equipo();
     public decimal precioEquipo { get; set; }
     public decimal importe { get; set; }
     public string descripcion { get; set; }
-    public decimal existenciaEquipo { get; set; }
     public decimal ITBIS { get; set; }
     public decimal SubTotal { get; set; }
     public decimal Total { get; set; }
@@ -262,7 +249,7 @@
 
         if (VentaId > 0)
         {
-            venta.VentaId = VentaId;
+            this.venta.VentaId = VentaId;
             this.Buscar();
         }
     }
@@ -272,11 +259,9 @@
         cantidad = 0;
         precioEquipo = 0;
         descripcion = string.Empty;
-        EquipoSeleccionado = 0;
         SubTotal = 0;
         ITBIS = 0;
         Total = 0;
-        existenciaEquipo = 0;
         importe = 0;
         notifierSvc.ShowNotification("Nueva Plantilla.",NotificationSeverity.Info);
         venta = new Ventas();
@@ -288,46 +273,33 @@
 
     private void ObtenerDatosEquipo() 
     {
-        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
+        Equipo aux = equipoBll.Buscar(detalle.EquipoId);
 
         if (aux != null)
         {
             precioEquipo = aux.Precio; 
             descripcion = aux.Nombre; 
-            venta.Existencia = aux.Cantidad;
-            venta.Existencia = aux.Cantidad - detalle.Cantidad;
         }
     }
 
     private void UnidadesEquipo()
     {
-        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
-
-        if (aux != null)
-        {
-            venta.UnidadesVendidas = venta.ventasDetalle.Sum(d => d.Cantidad);
-        }
+        venta.UnidadesVendidas = venta.ventasDetalle.Sum(d => d.Cantidad);  
     }
 
     private void ObtenerDevuelta()
     {
-        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
-
-        if (aux != null)
+        if (venta.PagoObtenido > venta.Total)
         {
-            if (venta.PagoObtenido > venta.Total)
-            {
-                venta.MontoRestante = venta.PagoObtenido - venta.Total;
-            }
+            venta.MontoRestante = venta.PagoObtenido - venta.Total;
         }
     }
 
     private void ObtenerPago() 
     {
-        switch (PagoSeleccionado)
+        switch (venta.PagoId)
         {
             case 1:
-                venta.PagoObtenido = venta.Total;
                 venta.MontoRestante = venta.PagoObtenido - venta.Total;
                 break;
 
@@ -335,16 +307,14 @@
                 venta.PagoObtenido = 0;
                 break;
 
-            case 3:
-                venta.PagoObtenido = venta.Total;
-                venta.MontoRestante = venta.PagoObtenido - venta.Total;
-                break;
         }
     }
-
-
     public void Guardar() 
-    {
+    {   
+        if(!Validation())
+        {
+            return;
+        }
 
         UnidadesEquipo();
         ObtenerDevuelta();
@@ -353,11 +323,9 @@
 
         if (guardado)
         {
-            this.venta = new Ventas();
-            this.detalle = new VentasDetalle();
-            EquipoSeleccionado = 0;
-            PagoSeleccionado = 0;
-
+            guardado = true;
+            venta = new Ventas();
+            detalle = new VentasDetalle();
             notifierSvc.ShowNotification("Guardado correctamente",NotificationSeverity.Success);
         }
         else
@@ -372,7 +340,7 @@
 
             if (encontrado != null)
             {
-                venta = encontrado;
+                this.venta = encontrado;
                 notifierSvc.ShowNotification("Registro encontrado",NotificationSeverity.Success);
             }
             else
@@ -389,37 +357,52 @@
             return;
         }
 
-        var find = venta.ventasDetalle.Find(o => o.EquipoId == EquipoSeleccionado);
+        var existencia = equipoBll.Buscar(detalle.EquipoId).Cantidad;
+        double result = existencia - this.detalle.Cantidad;
+        var find = venta.ventasDetalle.Find(o => o.EquipoId == detalle.EquipoId);
 
-        if(find == null)
+        if(result >= 0)
         {
-            this.venta.ventasDetalle.Add(new VentasDetalle
+            if(find == null)
             {
-                EquipoId = EquipoSeleccionado,
-                PagoId = PagoSeleccionado,
-                Descripcion = descripcion, 
-                Cantidad = detalle.Cantidad,
-                PrecioEquipo = precioEquipo,
-                Importe = precioEquipo * Convert.ToDecimal(detalle.Cantidad)
-            }); 
-            notifierSvc.ShowNotification("Agregado.", NotificationSeverity.Success);
+                this.venta.ventasDetalle.Add(new VentasDetalle
+                {
+                    EquipoId = detalle.EquipoId,
+                    Descripcion = descripcion, 
+                    Cantidad = detalle.Cantidad,
+                    PrecioEquipo = precioEquipo,
+                    Importe = precioEquipo * Convert.ToDecimal(detalle.Cantidad)
+                }); 
+                this.detalle = new VentasDetalle();
+                notifierSvc.ShowNotification("Agregado.", NotificationSeverity.Success);
+            }
+            else
+            {
+                detalle.Cantidad += find.Cantidad;
+                this.venta.ventasDetalle.Remove(find);
+                this.venta.ventasDetalle.Add(new VentasDetalle
+                {
+                    EquipoId = detalle.EquipoId,
+                    Descripcion = descripcion, 
+                    Cantidad = detalle.Cantidad,
+                    PrecioEquipo = precioEquipo,
+                    Importe = precioEquipo * Convert.ToDecimal(detalle.Cantidad)
+                });
+                this.detalle = new VentasDetalle();  
+            }
         }
         else
         {
-            detalle.Cantidad += find.Cantidad;
-            this.venta.ventasDetalle.Remove(find);
-            this.venta.ventasDetalle.Add(new VentasDetalle
+            ShowNotification(new NotificationMessage
             {
-                EquipoId = EquipoSeleccionado,
-                PagoId = PagoSeleccionado,
-                Descripcion = descripcion, 
-                Cantidad = detalle.Cantidad,
-                PrecioEquipo = precioEquipo,
-                Importe = precioEquipo * Convert.ToDecimal(detalle.Cantidad)
-            });  
+                Severity = NotificationSeverity.Error,
+                Summary = "No hay suficiente cantidad de este equipo",
+                Detail = $"De {equipoBll.Buscar(this.detalle.EquipoId).Nombre} solo quedan ({equipoBll.Buscar(this.detalle.EquipoId).Cantidad})",
+                Duration = 4000
+            });
         }
-
         ObtenerDatosEquipo();
+        UnidadesEquipo();
         venta.SubTotal = venta.ventasDetalle.Sum(o => o.Importe);
         venta.ITBIS = venta.SubTotal * 18 / 100;
         venta.Total = venta.SubTotal + venta.ITBIS;
@@ -430,33 +413,28 @@
         notifierSvc.ShowNotification("Detalle removido",NotificationSeverity.Success);
         this.venta.ventasDetalle.Remove(item);
         venta.SubTotal = venta.ventasDetalle.Sum(o => o.Importe);
+        UnidadesEquipo();
         venta.ITBIS = venta.SubTotal * 18 / 100;
         venta.Total = venta.SubTotal + venta.ITBIS;
 
-        Equipo aux = equipoBll.Buscar(EquipoSeleccionado);
 
-        if (aux != null)
-        {
-            venta.Existencia = aux.Cantidad;
-        }
     }
 
     public void Eliminar()
-    {
-        
+    {        
         if(ventaBll.Existe(venta.VentaId))
         {
             if (ventaBll.Eliminar(venta))
             {
                 venta = new Ventas();
                 detalle = new VentasDetalle();
-                notifierSvc.ShowNotification("Eliminado correctamente",NotificationSeverity.Success);
+                notifierSvc.ShowNotification("Eliminado correctamente.",NotificationSeverity.Success);
                 
             }
                
         }
         else
-            notifierSvc.ShowNotification("No fue posible eliminar",NotificationSeverity.Error);
+            notifierSvc.ShowNotification("No fue posible eliminar.",NotificationSeverity.Error);
 
     }
 
@@ -464,15 +442,9 @@
     {
         bool valido = true;
 
-        if (detalle.ClienteId == 0) 
+        if (venta.ClienteId == 0) 
         {
             notifierSvc.ShowNotification("Tiene que seleccionar un cliente.",NotificationSeverity.Warning);
-            return false;
-        }
-
-        if (EquipoSeleccionado == 0) 
-        {
-            notifierSvc.ShowNotification("Tiene que seleccionar un equipo.",NotificationSeverity.Warning);
             return false;
         }
         if (detalle.Cantidad <= 0) 
@@ -480,13 +452,56 @@
             notifierSvc.ShowNotification("La cantidad tiene que ser mayor que 0.",NotificationSeverity.Warning);
             return false;
         }
-        if (detalle.Cantidad > venta.Existencia)
+        if(detalle.EquipoId == 0)
         {
-            notifierSvc.ShowNotification("La cantidad a vender no puede ser mayor que la existencia.",NotificationSeverity.Error);
+            notifierSvc.ShowNotification("Tiene que seleccionar un equipo.",NotificationSeverity.Warning);
             return false;
         }
 
         return valido;
+    }
+
+    public bool Validation()
+    {
+        bool valido = true;
+
+        if (venta.ClienteId == 0) 
+        {
+            notifierSvc.ShowNotification("Tiene que seleccionar un cliente.",NotificationSeverity.Warning);
+            return false;
+        }
+        if (venta.PagoId == 0) 
+        {
+            notifierSvc.ShowNotification("Seleccione un método de pago.",NotificationSeverity.Warning);
+            return false;
+        }
+        if (venta.PagoObtenido < venta.Total) 
+        {
+            notifierSvc.ShowNotification("El pago debe ser mayor o igual al total.",NotificationSeverity.Warning );
+            return false;
+        }
+        if (venta.PagoObtenido == 0) 
+        {
+            notifierSvc.ShowNotification("Ingrese el monto del pago obtenido.",NotificationSeverity.Warning );
+            return false;
+        }
+        if (VentaId != venta.VentaId)
+        {
+            notifierSvc.ShowNotification("No se puede modificar el Id." , NotificationSeverity.Warning);
+            return false;
+            
+        }
+        if(venta.ventasDetalle.Count < 1)
+        {
+            notifierSvc.ShowNotification("Debes de agregar un equipo." , NotificationSeverity.Warning);
+            return false;
+        }
+
+        return valido;
+    }
+    void ShowNotification(NotificationMessage message)
+    {
+        notifierSvc.Notify(message);
     }
 
 } 

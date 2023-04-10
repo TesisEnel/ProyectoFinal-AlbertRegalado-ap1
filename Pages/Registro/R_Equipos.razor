@@ -116,7 +116,6 @@
 
     #nullable disable 
     Equipo equipos = new Equipo();
-
     [Parameter]  
     public int EquipoId { get; set; } 
 
@@ -147,17 +146,17 @@
 
         if(_equipo == null) 
         {
-        if (equipoBll.Guardar(equipos))
-        {
-            
-            notifierSvc.ShowNotification("Fue guardado correctamente.");
-            equipos = new Equipo();           
-        }
-        else
-            notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
+            if (equipoBll.Guardar(equipos))
+            {
+                
+                notifierSvc.ShowNotification("Fue guardado correctamente.");
+                equipos = new Equipo();           
+            }
+            else
+                notifierSvc.ShowNotification("No fue guardado, intentar nuevamente.", NotificationSeverity.Error);
 
-     }
-     else 
+        }
+        else 
         {
             if(_equipo.Nombre.ToLower() == equipos.Nombre.ToLower() && _equipo.EquipoId == equipos.EquipoId) 
             {
@@ -183,7 +182,7 @@
 
         if (this.equipos.EquipoId > 0)
         { 
-        var _equipo = equipoBll.Buscar(equipos.EquipoId);
+            var _equipo = equipoBll.Buscar(equipos.EquipoId);
 
             if (_equipo != null)
             {
