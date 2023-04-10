@@ -19,8 +19,8 @@ public class ApplicationDbContext : IdentityDbContext
       
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Pago>().HasData(  
-        new Pago { PagoId = 1, Metodo = "Efectivo"},             
-        new Pago { PagoId = 2, Metodo = "Tarjeta de credito"});
+        new Pago { PagoId = 1, Metodo = "Efectivo"});            
+       
 
     }
 
