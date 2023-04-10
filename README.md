@@ -29,6 +29,7 @@ HTML/CSS/JavaScript: lenguajes de programación utilizados para construir la int
 Usuario y clave
 
 Username: Rosalia@gmail.com
+
 Password: Rosalia123@
 
 
