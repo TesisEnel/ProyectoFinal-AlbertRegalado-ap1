@@ -2,6 +2,7 @@
 Proyecto final de Programación Aplicada I
 
 Sistema de Ventas de Equipos 
+
 Este es un sistema de ventas de equipos electrónicos que permite a los usuarios realizar compras en línea de una amplia variedad de equipos electrónicos. El sistema está diseñado para ser fácil de usar y proporcionar una experiencia de compra segura y sin problemas para los clientes.
 
 Características
