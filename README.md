@@ -1,3 +1,4 @@
+
 # Sistema de ventas de Equipos
 Proyecto final de Programación Aplicada I
 
